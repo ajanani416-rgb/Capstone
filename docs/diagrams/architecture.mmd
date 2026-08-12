@@ -1,0 +1,24 @@
+flowchart TD
+    A[React Frontend]
+    B[REST API]
+    C[Spring Boot Controller]
+    D[Service Layer]
+    E[Repository Layer]
+    F[Spring Data JPA / Hibernate]
+    G[MySQL]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+
+    subgraph SecurityFlow [Security Flow]
+      R[React]
+      J[JWT]
+      S[Spring Security]
+      P[Protected Spring Boot APIs]
+    end
+
+    R --> J --> S --> P

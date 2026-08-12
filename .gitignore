@@ -1,0 +1,10 @@
+# Environment
+.env
+
+# Node and build outputs
+node_modules/
+target/
+dist/
+
+# IDE
+.idea/

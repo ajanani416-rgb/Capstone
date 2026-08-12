@@ -1,0 +1,40 @@
+erDiagram
+    USER {
+        int id PK
+        string name
+        string email
+        string passwordHash
+        string role
+        datetime createdAt
+    }
+    SERVICE {
+        int id PK
+        string name
+        string description
+        int durationMinutes
+        decimal price
+        boolean active
+    }
+    BARBER {
+        int id PK
+        string name
+        string specialization
+        boolean active
+    }
+    APPOINTMENT {
+        int id PK
+        int userId FK
+        int barberId FK
+        int serviceId FK
+        date appointmentDate
+        time appointmentTime
+        int queueNumber
+        string status
+        int estimatedWaitMinutes
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    USER ||--o{ APPOINTMENT : "has"
+    BARBER ||--o{ APPOINTMENT : "serves"
+    SERVICE ||--o{ APPOINTMENT : "includes"

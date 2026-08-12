@@ -1,0 +1,171 @@
+# Database Schema
+
+## users
+- Column: id
+  - Data type: BIGINT
+  - Primary key: Yes
+  - Foreign key: No
+  - Nullable: No
+  - Description: Unique user identifier
+- Column: name
+  - Data type: VARCHAR(255)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: User full name
+- Column: email
+  - Data type: VARCHAR(255)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: User email address
+- Column: password_hash
+  - Data type: VARCHAR(255)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Hashed password
+- Column: role
+  - Data type: VARCHAR(50)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: User role (CUSTOMER, ADMIN)
+- Column: created_at
+  - Data type: DATETIME
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Record creation timestamp
+
+## services
+- Column: id
+  - Data type: BIGINT
+  - Primary key: Yes
+  - Foreign key: No
+  - Nullable: No
+  - Description: Unique service identifier
+- Column: name
+  - Data type: VARCHAR(255)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Name of service
+- Column: description
+  - Data type: TEXT
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: Yes
+  - Description: Service description
+- Column: duration_minutes
+  - Data type: INT
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Estimated duration in minutes
+- Column: price
+  - Data type: DECIMAL(10,2)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Service price
+- Column: active
+  - Data type: BOOLEAN
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Service availability status
+
+## barbers
+- Column: id
+  - Data type: BIGINT
+  - Primary key: Yes
+  - Foreign key: No
+  - Nullable: No
+  - Description: Unique barber identifier
+- Column: name
+  - Data type: VARCHAR(255)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Barber name
+- Column: specialization
+  - Data type: VARCHAR(255)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: Yes
+  - Description: Barber specialization
+- Column: active
+  - Data type: BOOLEAN
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Barber availability status
+
+## appointments
+- Column: id
+  - Data type: BIGINT
+  - Primary key: Yes
+  - Foreign key: No
+  - Nullable: No
+  - Description: Unique appointment identifier
+- Column: user_id
+  - Data type: BIGINT
+  - Primary key: No
+  - Foreign key: users(id)
+  - Nullable: No
+  - Description: Linked customer user
+- Column: barber_id
+  - Data type: BIGINT
+  - Primary key: No
+  - Foreign key: barbers(id)
+  - Nullable: No
+  - Description: Selected barber
+- Column: service_id
+  - Data type: BIGINT
+  - Primary key: No
+  - Foreign key: services(id)
+  - Nullable: No
+  - Description: Selected service
+- Column: appointment_date
+  - Data type: DATE
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Appointment date
+- Column: appointment_time
+  - Data type: TIME
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Appointment time slot
+- Column: queue_number
+  - Data type: INT
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: Yes
+  - Description: Queue number assigned at booking
+- Column: status
+  - Data type: VARCHAR(50)
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Appointment status
+- Column: estimated_wait_minutes
+  - Data type: INT
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: Yes
+  - Description: Estimated wait time
+- Column: created_at
+  - Data type: DATETIME
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Record creation timestamp
+- Column: updated_at
+  - Data type: DATETIME
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: Yes
+  - Description: Record last update timestamp

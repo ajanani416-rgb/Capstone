@@ -1,0 +1,53 @@
+classDiagram
+    class AuthController {
+    }
+    class AuthService {
+    }
+    class JwtService {
+    }
+    class SecurityConfig {
+    }
+    class User {
+    }
+    class UserRepository {
+    }
+    class Service {
+    }
+    class ServiceController {
+    }
+    class ServiceService {
+    }
+    class ServiceRepository {
+    }
+    class Barber {
+    }
+    class BarberController {
+    }
+    class BarberService {
+    }
+    class BarberRepository {
+    }
+    class Appointment {
+    }
+    class AppointmentController {
+    }
+    class AppointmentService {
+    }
+    class AppointmentRepository {
+    }
+    class QueueService {
+    }
+    class PredictionService {
+    }
+    class GlobalExceptionHandler {
+    }
+
+    AuthController --> AuthService
+    AuthService --> JwtService
+    ServiceController --> ServiceService
+    ServiceService --> ServiceRepository
+    BarberController --> BarberService
+    BarberService --> BarberRepository
+    AppointmentController --> AppointmentService
+    AppointmentService --> AppointmentRepository
+    UserRepository <|-- User
