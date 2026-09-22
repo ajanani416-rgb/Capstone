@@ -17,7 +17,7 @@ export function OtpStep({ phone, purpose, expiresInSeconds, onVerified, onBack }
   const [boxes, setBoxes] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState(null);
   const [pending, setPending] = useState(false);
-  const [remaining, setRemaining] = useState(expiresInSeconds ?? 600);
+  const [remaining, setRemaining] = useState(expiresInSeconds ?? 120);
   const [cooldown, setCooldown] = useState(30);
   const inputs = useRef([]);
 
@@ -94,7 +94,7 @@ export function OtpStep({ phone, purpose, expiresInSeconds, onVerified, onBack }
     try {
       const challenge = await authService.resendOtp({ phone, purpose });
       setBoxes(["", "", "", "", "", ""]);
-      setRemaining(challenge.expiresInSeconds ?? 600);
+      setRemaining(challenge.expiresInSeconds ?? 120);
       setCooldown(30);
       inputs.current[0]?.focus();
     } catch (err) {

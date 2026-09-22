@@ -8,6 +8,14 @@ import { ApiError } from "../services/api.js";
 
 function isPhone(v) { return /^\+?[0-9]{7,15}$/.test((v ?? "").trim()); }
 
+/* Accepts what users actually type: a bare 10-digit mobile number is
+   expanded to +91; anything else passes through to validation. */
+function normalizePhone(v) {
+  const digits = (v ?? "").replace(/\D/g, "");
+  if (/^[6-9]\d{9}$/.test(digits)) return `+91${digits}`;
+  return (v ?? "").trim();
+}
+
 function afterVerified(login, navigate) {
   return (session) => {
     login({
@@ -25,25 +33,27 @@ export function Login() {
   const [errors, setErrors] = useState({});
   const [pending, setPending] = useState(false);
   // "form" → number lookup; "otp" → SMS-code check (purpose varies).
-  const [step, setStep] = useState({ name: "form", purpose: "LOGIN", expiresInSeconds: 600 });
+  // step.phone holds the normalized number the code was issued for.
+  const [step, setStep] = useState({ name: "form", phone: "", purpose: "LOGIN", expiresInSeconds: 120 });
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   async function onSubmit(e) {
     e.preventDefault();
+    const phone = normalizePhone(form.phone);
     const next = {};
-    if (!isPhone(form.phone)) next.phone = "Enter a valid phone number.";
+    if (!isPhone(phone)) next.phone = "Enter your 10-digit mobile number.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
     setPending(true);
     try {
-      const challenge = await authService.login(form);
-      setStep({ name: "otp", purpose: challenge.purpose ?? "LOGIN",
-        expiresInSeconds: challenge.expiresInSeconds ?? 600 });
+      const challenge = await authService.login({ phone });
+      setStep({ name: "otp", phone, purpose: challenge.purpose ?? "LOGIN",
+        expiresInSeconds: challenge.expiresInSeconds ?? 120 });
     } catch (err) {
       if (err instanceof ApiError && err.status === 403) {
         // Number exists but is unverified: server issued a REGISTER code.
-        setStep({ name: "otp", purpose: "REGISTER", expiresInSeconds: 600 });
+        setStep({ name: "otp", phone, purpose: "REGISTER", expiresInSeconds: 120 });
       } else {
         setErrors({ form: err instanceof ApiError ? err.message : "Login failed. Please retry." });
       }
@@ -57,10 +67,10 @@ export function Login() {
       <>
         <PageHeader title="Check your texts" subtitle="Enter the 6-digit code to finish logging in." />
         <Card>
-          <OtpStep phone={form.phone} purpose={step.purpose}
+          <OtpStep phone={step.phone || form.phone} purpose={step.purpose}
             expiresInSeconds={step.expiresInSeconds}
             onVerified={afterVerified(login, navigate)}
-            onBack={() => setStep({ name: "form", purpose: "LOGIN", expiresInSeconds: 600 })} />
+            onBack={() => setStep({ name: "form", phone: "", purpose: "LOGIN", expiresInSeconds: 120 })} />
         </Card>
       </>
     );
@@ -72,7 +82,7 @@ export function Login() {
       <Card>
         <form onSubmit={onSubmit} noValidate>
           <Input id="phone" label="Phone number" type="tel" autoComplete="tel" required
-            hint="Digits only, e.g. +919876543210."
+            hint="Enter your 10-digit mobile number."
             value={form.phone} onChange={set("phone")} error={errors.phone} />
           {errors.form && <p className="error" role="alert">{errors.form}</p>}
           <Button type="submit" disabled={pending}>{pending ? "Sending code…" : "Text me a code"}</Button>
@@ -95,14 +105,15 @@ export function Register() {
 
   async function onSubmit(e) {
     e.preventDefault();
+    const phone = normalizePhone(form.phone);
     const next = {};
     if (!form.name.trim()) next.name = "Enter your name.";
-    if (!isPhone(form.phone)) next.phone = "Enter a valid phone number.";
+    if (!isPhone(phone)) next.phone = "Enter your 10-digit mobile number.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
     setPending(true);
     try {
-      const c = await authService.register({ name: form.name, phone: form.phone });
+      const c = await authService.register({ name: form.name, phone });
       setChallenge(c);
     } catch (err) {
       setErrors({ form: err instanceof ApiError ? err.message : "Registration failed. Please retry." });
@@ -133,7 +144,7 @@ export function Register() {
           <Input id="name" label="Full name" autoComplete="name" required
             value={form.name} onChange={set("name")} error={errors.name} />
           <Input id="phone" label="Phone number" type="tel" autoComplete="tel" required
-            hint="Digits only, e.g. +919876543210."
+            hint="Enter your 10-digit mobile number."
             value={form.phone} onChange={set("phone")} error={errors.phone} />
           {errors.form && <p className="error" role="alert">{errors.form}</p>}
           <Button type="submit" disabled={pending}>{pending ? "Creating…" : "Create account"}</Button>

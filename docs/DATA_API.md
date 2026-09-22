@@ -19,7 +19,7 @@
 | GET | `/api/users` | ADMIN | 200 hash-free list; CUSTOMER → 403 |
 | GET | `/api/queue?date=` (default today) | ADMIN | 200 ordered + live waits; CUSTOMER → 403 |
 
-Auth rules: HS256 JWT 24h Bearer; no JWT without verified OTP; codes 6-digit SHA-256, 10-min TTL, 5 attempts→410, single-active per (phone, purpose). SMS: console sender default (demo; logs the code), gateway sender later via `app.sms.gateway`. Booking: ISO date/time, date≥today, active catalog, D2 exact-slot + V3 backstop. Queue: immutable order, sum-ahead waits, barbers independent. Build notes: `-parameters` flag (+explicit `@PathVariable` — unnamed ones 500'd); method-security denials rethrown (else 500).
+Auth rules: HS256 JWT 24h Bearer; no JWT without verified OTP; codes 6-digit SHA-256, 2-min TTL, 5 attempts→410, single-active per (phone, purpose). SMS: console sender default (demo; logs the code), gateway sender later via `app.sms.gateway`. Booking: ISO date/time, date≥today, active catalog, D2 exact-slot + V3 backstop. Queue: immutable order, sum-ahead waits, barbers independent. Build notes: `-parameters` flag (+explicit `@PathVariable` — unnamed ones 500'd); method-security denials rethrown (else 500).
 
 ## Standard envelope (enforced)
 Success: resource JSON. Error: `{message, fieldErrors?}` 400/401/403/404/409/410/500. No stacks/secrets.

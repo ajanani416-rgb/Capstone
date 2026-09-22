@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * SMS OTP lifecycle. Codes are 6 digits, SHA-256 hashed at rest, 10-minute
+ * SMS OTP lifecycle. Codes are 6 digits, SHA-256 hashed at rest, 2-minute
  * TTL, 5 attempts, single-active-code per (phone, purpose). Plaintexts never
  * touch the database or logs — except the SMS sender, whose console
  * implementation is demo-only by design.

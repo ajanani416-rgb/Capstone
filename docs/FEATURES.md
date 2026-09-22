@@ -7,7 +7,7 @@ Each feature traces to Problem_Statement.md §8. All decisions D1–D6 resolved;
 - Preconditions: none.
 - Register flow: submit name+phone → UNVERIFIED customer created → 6-digit code texted → verify → account activates AND session starts (201 challenge, then 200 JWT).
 - Login flow: phone lookup → 6-digit code texted → verify → JWT (200 challenge, then 200 JWT). Unverified phone → 403 with a fresh REGISTER code (UI branches on 403).
-- Rules (locked): codes SHA-256 at rest, 10-min TTL, 5 attempts then 410, single-active per (phone, purpose), REGISTER codes can't log in; wrong codes answer 401 uniformly; resend invalidates previous.
+- Rules (locked): codes SHA-256 at rest, 2-min TTL, 5 attempts then 410, single-active per (phone, purpose), REGISTER codes can't log in; wrong codes answer 401 uniformly; resend invalidates previous (30s cooldown in UI).
 - Validation: name required, phone format (`^\+?[0-9]{7,15}$`), unique phone (409).
 - Authorization (D4): public register creates CUSTOMER only; role field is not accepted; admin comes from the V2 seed migration (grandfathered verified).
 - Auth mechanism (D1): JWT HS256, 24h expiry, Bearer header. See DATA_API.md.

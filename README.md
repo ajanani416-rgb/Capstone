@@ -5,7 +5,7 @@ A college Full Stack capstone MVP: customers register, verify their phone number
 ## Features
 - Customer: register + SMS OTP, login + OTP, browse services & barbers, book (exact-slot conflict → friendly 409), own appointments, live queue wait on detail + today view
 - Admin: filtered appointment list, strict status lifecycle (QUEUED→IN_SERVICE/COMPLETED, CANCELLED), day queue with computed waits, services/barbers CRUD (referenced-delete blocked), customer directory
-- Auth: passwordless — 6-digit SMS OTP (10-min, 5 tries) before register-complete AND every login, then JWT (24h Bearer); seeded admin; CUSTOMER-only public registration; JSON 401/403/410
+- Auth: passwordless — 6-digit SMS OTP (2-min, 5 tries) before register-complete AND every login, then JWT (24h Bearer); seeded admin; CUSTOMER-only public registration; JSON 401/403/410
 - Frontend: role-based routes/layouts, design-token CSS, OTP code entry, loading/empty/error+retry on every API view, responsive 390–1440
 - Docs: full spec set under `docs/` (PRODUCT → DEFINITION_OF_DONE) + diagrams
 
