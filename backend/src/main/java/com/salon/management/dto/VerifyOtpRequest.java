@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 /** POST /api/auth/verify-otp body. REGISTER completes a new account (and
- * returns a session); LOGIN finishes a password-checked login (returns JWT). */
+ * returns a session); LOGIN finishes a number-lookup login (returns JWT). */
 public class VerifyOtpRequest {
 
     @NotBlank(message = "Phone number is required.")

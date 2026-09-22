@@ -81,7 +81,7 @@ class QueueApiTest {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Q", "phone", number, "password", "Password123"))))
+                                "name", "Q", "phone", number))))
                 .andExpect(status().isCreated());
         MvcResult r = mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -95,7 +95,7 @@ class QueueApiTest {
     }
 
     private String adminToken() {
-        User admin = users.save(new User("A", phone(), "h", Role.ADMIN));
+        User admin = users.save(new User("A", phone(), Role.ADMIN));
         return jwtService.generateToken(admin.getId(), "ADMIN");
     }
 

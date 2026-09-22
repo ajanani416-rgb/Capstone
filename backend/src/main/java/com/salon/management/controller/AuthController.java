@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Public: POST register (→ OTP challenge), POST login (password → OTP
+ * Public: POST register (→ OTP challenge), POST login (lookup → OTP
  * challenge, or 403 unverified with a fresh code), POST verify-otp
  * (code → JWT session), POST otp/resend. Authenticated: GET me.
  */

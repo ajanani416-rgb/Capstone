@@ -11,9 +11,9 @@ import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
 
 /** Proves the Flyway migrations (V1 baseline + V2 admin seed + V3 slot
- * unique + V4 OTP + V5 admin identity + V6 phone identity) actually run
- * cleanly and the seed is idempotent — against H2 in MySQL mode, since no
- * MySQL server is available in this environment. */
+ * unique + V4 OTP + V5 admin identity + V6 phone identity + V7 passwordless)
+ * actually run cleanly and the seed is idempotent — against H2 in MySQL
+ * mode, since no MySQL server is available in this environment. */
 class MigrationTest {
 
     private DataSource h2() {
@@ -57,8 +57,8 @@ class MigrationTest {
             // V3 backstop: the DB itself rejects a same-barber same-slot double
             // insert, independent of the service-layer pre-check.
             try (var setup = c.prepareStatement(
-                    "INSERT INTO users (name, phone, password_hash, role, created_at)"
-                    + " VALUES ('M','+910000000002','h','CUSTOMER', NOW());"
+                    "INSERT INTO users (name, phone, role, created_at)"
+                    + " VALUES ('M','+910000000002','CUSTOMER', NOW());"
                     + "INSERT INTO services (name, duration_minutes, price, active)"
                     + " VALUES ('S',30,100.00,TRUE);"
                     + "INSERT INTO barbers (name, active) VALUES ('B',TRUE)")) {

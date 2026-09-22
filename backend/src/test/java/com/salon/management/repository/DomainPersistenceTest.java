@@ -48,8 +48,7 @@ class DomainPersistenceTest {
     }
 
     private User customer() {
-        return new User("Asha", phone(),
-                "$2a$10$testhashplaceholder0000000000000000000000", Role.CUSTOMER);
+        return new User("Asha", phone(), Role.CUSTOMER);
     }
 
     private Service haircut() {
@@ -85,10 +84,10 @@ class DomainPersistenceTest {
     @Test
     void phoneIsUnique() {
         String number = phone();
-        users.saveAndFlush(new User("One", number, "hash", Role.CUSTOMER));
+        users.saveAndFlush(new User("One", number, Role.CUSTOMER));
 
         assertThatThrownBy(() -> users.saveAndFlush(
-                new User("Two", number, "hash", Role.CUSTOMER)))
+                new User("Two", number, Role.CUSTOMER)))
                 .isInstanceOf(Exception.class);
     }
 

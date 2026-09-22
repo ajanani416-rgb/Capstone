@@ -49,8 +49,7 @@ class OtpApiTest {
     private String register(String phone) throws Exception {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("name", "O", "phone", phone,
-                                "password", "Password123"))))
+                        .content(json(Map.of("name", "O", "phone", phone))))
                 .andExpect(status().isCreated());
         return otpService.lastIssuedCode(phone, OtpPurpose.REGISTER);
     }

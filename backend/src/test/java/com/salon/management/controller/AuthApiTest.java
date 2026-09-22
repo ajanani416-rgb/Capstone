@@ -20,9 +20,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-/** Phone-OTP contract tests: register → challenge (no token), login before
- * verify → 403, wrong code → 401, verify → JWT, login → challenge → JWT,
- * resend, duplicate → 409, validation → 400, me boundaries. */
+/** Passwordless phone-OTP contract tests: register → challenge (no token),
+ * login before verify → 403, wrong code → 401, verify → JWT, login →
+ * challenge → JWT, resend, duplicate → 409, validation → 400, me
+ * boundaries. No passwords anywhere: the OTP challenge is the auth. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthApiTest {
@@ -54,8 +55,7 @@ class AuthApiTest {
     private String registerAndVerify(String phone) throws Exception {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("name", "Test User", "phone", phone,
-                                "password", "Password123"))))
+                        .content(json(Map.of("name", "Test User", "phone", phone))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.token").doesNotExist())
                 .andExpect(jsonPath("$.purpose", is("REGISTER")));
@@ -77,10 +77,10 @@ class AuthApiTest {
         String number = phone();
         String token = registerAndVerify(number);
 
-        // Password login now returns a challenge, not a session.
+        // Login returns a challenge, not a session.
         mvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("phone", number, "password", "Password123"))))
+                        .content(json(Map.of("phone", number))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").doesNotExist())
                 .andExpect(jsonPath("$.purpose", is("LOGIN")));
@@ -107,12 +107,11 @@ class AuthApiTest {
         String number = phone();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("name", "Early", "phone", number,
-                                "password", "Password123"))))
+                        .content(json(Map.of("name", "Early", "phone", number))))
                 .andExpect(status().isCreated());
         mvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("phone", number, "password", "Password123"))))
+                        .content(json(Map.of("phone", number))))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message", containsString("not verified")));
     }
@@ -122,8 +121,7 @@ class AuthApiTest {
         String number = phone();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("name", "W", "phone", number,
-                                "password", "Password123"))))
+                        .content(json(Map.of("name", "W", "phone", number))))
                 .andExpect(status().isCreated());
         mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -138,8 +136,7 @@ class AuthApiTest {
         registerAndVerify(number);
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("name", "Again", "phone", number,
-                                "password", "Password123"))))
+                        .content(json(Map.of("name", "Again", "phone", number))))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message", containsString("already exists")));
     }
@@ -150,24 +147,18 @@ class AuthApiTest {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("name", "Sneaky", "phone", number,
-                                "password", "Password123", "role", "ADMIN"))))
+                                "role", "ADMIN"))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.purpose", is("REGISTER")));
     }
 
     @Test
-    void wrongPasswordAndUnknownPhoneAreBoth401() throws Exception {
-        String number = phone();
-        registerAndVerify(number);
+    void unknownPhoneIs401() throws Exception {
         mvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("phone", number, "password", "WrongPassword1"))))
+                        .content(json(Map.of("phone", phone()))))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message", is("Invalid phone number or password.")));
-        mvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("phone", phone(), "password", "Password123"))))
-                .andExpect(status().isUnauthorized());
+                .andExpect(jsonPath("$.message", is("Invalid phone number.")));
     }
 
     @Test
@@ -181,11 +172,10 @@ class AuthApiTest {
     void invalidRegistrationIs400WithFieldErrors() throws Exception {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("name", "", "phone", "not-a-phone",
-                                "password", "short"))))
+                        .content(json(Map.of("name", "", "phone", "not-a-phone"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.phone").isString())
-                .andExpect(jsonPath("$.fieldErrors.password").isString());
+                .andExpect(jsonPath("$.fieldErrors.name").isString());
     }
 
     @Test

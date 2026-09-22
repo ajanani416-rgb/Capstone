@@ -79,7 +79,7 @@ class AdminApiTest {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Cust", "phone", number, "password", "Password123"))))
+                                "name", "Cust", "phone", number))))
                 .andExpect(status().isCreated());
         MvcResult r = mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,8 +93,7 @@ class AdminApiTest {
     }
 
     private String adminToken() {
-        User admin = users.save(new User("Admin", phone(),
-                "unused-hash", Role.ADMIN));
+        User admin = users.save(new User("Admin", phone(), Role.ADMIN));
         return jwtService.generateToken(admin.getId(), "ADMIN");
     }
 
@@ -272,7 +271,7 @@ class AdminApiTest {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Listed", "phone", number, "password", "Password123"))))
+                                "name", "Listed", "phone", number))))
                 .andExpect(status().isCreated());
 
         mvc.perform(get("/api/users").header("Authorization", "Bearer " + adminToken()))

@@ -30,4 +30,7 @@ V4 (verified + otp_codes, grandfathered), OtpService (SHA-256, 10-min, 5 tries, 
 ## TASK-010 SMS-OTP identity (phone replaces email) — DONE
 Operator decision: Gmail OTP removed entirely (mail package + starter-mail deleted), phone is the login identity and SMS OTP channel. V6 (users.email→phone incl. admin backfill `+910000000001`, otp_codes.email→phone with V4-index drop first — H2 refuses referenced-column drops), entities/DTOs/repos/services/exceptions renamed to phone, console SMS sender (log-only, gateway later via `app.sms.gateway`), frontend auth pages + OtpStep + customers table to phone, all docs updated. 37/37 green.
 
+## TASK-011 Passwordless auth (phone + SMS OTP only) — DONE
+Operator decision: passwords removed entirely. V7 drops `users.password_hash`; User/DTOs lose password fields; AuthService login is number-lookup + challenge (no password check); PasswordEncoder bean deleted; frontend register is name+phone, login is phone-only ("Text me a code"); all tests + docs updated. 37/37 green.
+
 ## DECISION_REQUIRED — none open (D1–D6 all resolved)

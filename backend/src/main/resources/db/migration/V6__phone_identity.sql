@@ -2,8 +2,7 @@
 -- (SMS verification). V1/V2/V5 stay frozen as history.
 --
 -- Demo admin phone below is a DEV-ONLY placeholder (obviously fake 000000
--- pattern): change it immediately after first login in any shared
--- environment, exactly like the password rule in V2.
+-- pattern): change the number immediately in any shared environment.
 --
 -- Assumption (documented): pre-V6 databases only carry the seeded admin row
 -- plus API-created demo users. The admin row is backfilled here; any other

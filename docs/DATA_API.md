@@ -5,7 +5,7 @@
 |---|---|---|---|
 | GET | `/api/health` | none | 200 text (liveness; `/` serves the bundled UI) |
 | POST | `/api/auth/register` | none | 201 challenge `{phone, purpose:REGISTER, expiresInSeconds}` (NO token); creates UNVERIFIED customer; 400 validation, 409 duplicate |
-| POST | `/api/auth/login` | none | 200 challenge `{purpose:LOGIN}` after password check; 401 generic; 403 unverified (fresh REGISTER code, UI branches on status) |
+| POST | `/api/auth/login` | none | 200 challenge `{purpose:LOGIN}` after number lookup; 401 unknown number; 403 unverified (fresh REGISTER code, UI branches on status) |
 | POST | `/api/auth/verify-otp` | none | 200 AuthResponse `{token,…}`; REGISTER activates; 400 shape, 401 wrong code, 410 dead code |
 | POST | `/api/auth/otp/resend` | none | 200 fresh challenge (invalidates previous); REGISTER on verified → 400; LOGIN unknown/unverified → 401 generic |
 | GET | `/api/auth/me` | Bearer | 200 `{id, name, phone, role}`; 401 otherwise |

@@ -15,30 +15,26 @@ import com.salon.management.exception.UnverifiedPhoneException;
 import com.salon.management.repository.UserRepository;
 import com.salon.management.security.JwtService;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Phone-OTP auth. No JWT is issued without a verified code: register creates
- * an UNVERIFIED customer and returns a challenge; login checks the password
- * and returns a challenge. Verification exchanges the code for the session.
- * Registration still always creates CUSTOMER (D4). The code travels by SMS
- * (console sender in dev, gateway later) — no email anywhere in this flow.
+ * Passwordless phone-OTP auth. No JWT is issued without a verified code:
+ * register creates an UNVERIFIED customer and returns a challenge; login
+ * looks the number up and returns a challenge. Verification exchanges the
+ * code for the session. Registration still always creates CUSTOMER (D4).
+ * The code travels by SMS (console sender in dev, gateway later).
  */
 @Service
 public class AuthService {
 
     private final UserRepository users;
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final OtpService otpService;
 
-    public AuthService(UserRepository users, PasswordEncoder passwordEncoder,
-            JwtService jwtService, OtpService otpService) {
+    public AuthService(UserRepository users, JwtService jwtService, OtpService otpService) {
         this.users = users;
-        this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.otpService = otpService;
     }
@@ -49,8 +45,7 @@ public class AuthService {
         if (users.existsByPhone(phone)) {
             throw new DuplicatePhoneException(phone);
         }
-        User user = new User(request.getName().trim(), phone,
-                passwordEncoder.encode(request.getPassword()), Role.CUSTOMER);
+        User user = new User(request.getName().trim(), phone, Role.CUSTOMER);
         user.setVerified(false);
         users.save(user);
         return otpService.issue(phone, OtpPurpose.REGISTER, "account registration");
@@ -60,9 +55,6 @@ public class AuthService {
     public OtpChallengeResponse login(LoginRequest request) {
         String phone = request.getPhone().trim();
         User user = users.findByPhone(phone).orElseThrow(InvalidCredentialsException::new);
-        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new InvalidCredentialsException();
-        }
         if (!Boolean.TRUE.equals(user.getVerified())) {
             // Fresh REGISTER code + 403 the UI can branch on (status alone).
             otpService.issue(phone, OtpPurpose.REGISTER, "account registration");
@@ -100,7 +92,7 @@ public class AuthService {
             return otpService.issue(phone, OtpPurpose.REGISTER, "account registration");
         }
         if (!Boolean.TRUE.equals(user.getVerified())) {
-            // Same generic answer as bad credentials: never reveal registration.
+            // Same generic answer as unknown number: never reveal registration.
             throw new InvalidCredentialsException();
         }
         return otpService.issue(phone, OtpPurpose.LOGIN, "login");

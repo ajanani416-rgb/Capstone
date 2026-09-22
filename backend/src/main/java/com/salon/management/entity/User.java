@@ -17,10 +17,9 @@ import java.time.LocalDateTime;
 
 /**
  * Customer or admin account. Maps docs/database-schema.md users table (+V4
- * verified flag, +V6 phone identity). Phone is the login identity and the SMS
- * OTP channel. Passwords are stored as BCrypt hashes (never plaintext) —
- * hashing happens in the auth service (TASK-004), this entity only persists
- * the hash.
+ * verified flag, +V6 phone identity, +V7 passwordless). Phone is the login
+ * identity and the SMS OTP channel; there are no passwords — every session
+ * begins with a verified OTP challenge.
  */
 @Entity
 @Table(name = "users")
@@ -41,11 +40,6 @@ public class User {
     @Column(nullable = false, unique = true, length = 20)
     private String phone;
 
-    @NotBlank
-    @Size(max = 255)
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -63,10 +57,9 @@ public class User {
     protected User() {
     }
 
-    public User(String name, String phone, String passwordHash, Role role) {
+    public User(String name, String phone, Role role) {
         this.name = name;
         this.phone = phone;
-        this.passwordHash = passwordHash;
         this.role = role;
     }
 
@@ -95,14 +88,6 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
     }
 
     public Role getRole() {

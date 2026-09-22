@@ -11,9 +11,9 @@ Reference (design direction only, not a copy): Dribbble shot 25812917 "POS Dashb
 ## 2. User journeys (approved flows only)
 Customer:
 `Landing → Register → SMS OTP → Dashboard → Services → Book (service→barber→date/time→confirm) → Appointment detail (queue number + live wait) → Queue/status`
-Login: `Login → Password → SMS OTP → Dashboard`
+Login: `Login → SMS OTP → Dashboard`
 Admin:
-`Login → Password → SMS OTP → Dashboard (today's load) → Appointments (filter) → Queue (status updates) → Services/Barbers (CRUD) → Customers`
+`Login → SMS OTP → Dashboard (today's load) → Appointments (filter) → Queue (status updates) → Services/Barbers (CRUD) → Customers`
 - Never expose internal IDs as the primary identifier to customers; show service/barber names, date/time, queue number, status.
 
 ## 3. Required states per API screen

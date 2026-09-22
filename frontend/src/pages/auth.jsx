@@ -21,10 +21,10 @@ function afterVerified(login, navigate) {
 export function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [form, setForm] = useState({ phone: "", password: "" });
+  const [form, setForm] = useState({ phone: "" });
   const [errors, setErrors] = useState({});
   const [pending, setPending] = useState(false);
-  // "form" → password check; "otp" → SMS-code check (purpose varies).
+  // "form" → number lookup; "otp" → SMS-code check (purpose varies).
   const [step, setStep] = useState({ name: "form", purpose: "LOGIN", expiresInSeconds: 600 });
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -33,7 +33,6 @@ export function Login() {
     e.preventDefault();
     const next = {};
     if (!isPhone(form.phone)) next.phone = "Enter a valid phone number.";
-    if (!form.password) next.password = "Enter your password.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
     setPending(true);
@@ -43,7 +42,7 @@ export function Login() {
         expiresInSeconds: challenge.expiresInSeconds ?? 600 });
     } catch (err) {
       if (err instanceof ApiError && err.status === 403) {
-        // Password correct, phone unverified: server issued a REGISTER code.
+        // Number exists but is unverified: server issued a REGISTER code.
         setStep({ name: "otp", purpose: "REGISTER", expiresInSeconds: 600 });
       } else {
         setErrors({ form: err instanceof ApiError ? err.message : "Login failed. Please retry." });
@@ -69,16 +68,14 @@ export function Login() {
 
   return (
     <>
-      <PageHeader title="Log in" subtitle="Welcome back." />
+      <PageHeader title="Log in" subtitle="Enter your number — we'll text you a code." />
       <Card>
         <form onSubmit={onSubmit} noValidate>
           <Input id="phone" label="Phone number" type="tel" autoComplete="tel" required
             hint="Digits only, e.g. +919876543210."
             value={form.phone} onChange={set("phone")} error={errors.phone} />
-          <Input id="password" label="Password" type="password" autoComplete="current-password" required
-            value={form.password} onChange={set("password")} error={errors.password} />
           {errors.form && <p className="error" role="alert">{errors.form}</p>}
-          <Button type="submit" disabled={pending}>{pending ? "Logging in…" : "Continue with SMS code"}</Button>
+          <Button type="submit" disabled={pending}>{pending ? "Sending code…" : "Text me a code"}</Button>
         </form>
         <p>No account? <Link to="/register">Register</Link></p>
       </Card>
@@ -89,7 +86,7 @@ export function Login() {
 export function Register() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [form, setForm] = useState({ name: "", phone: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ name: "", phone: "" });
   const [errors, setErrors] = useState({});
   const [pending, setPending] = useState(false);
 
@@ -101,13 +98,11 @@ export function Register() {
     const next = {};
     if (!form.name.trim()) next.name = "Enter your name.";
     if (!isPhone(form.phone)) next.phone = "Enter a valid phone number.";
-    if (form.password.length < 8) next.password = "Use at least 8 characters.";
-    if (form.confirm !== form.password) next.confirm = "Passwords don't match.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
     setPending(true);
     try {
-      const c = await authService.register({ name: form.name, phone: form.phone, password: form.password });
+      const c = await authService.register({ name: form.name, phone: form.phone });
       setChallenge(c);
     } catch (err) {
       setErrors({ form: err instanceof ApiError ? err.message : "Registration failed. Please retry." });
@@ -132,7 +127,7 @@ export function Register() {
 
   return (
     <>
-      <PageHeader title="Create account" subtitle="Book faster and track your queue." />
+      <PageHeader title="Create account" subtitle="Your number is your account — no password needed." />
       <Card>
         <form onSubmit={onSubmit} noValidate>
           <Input id="name" label="Full name" autoComplete="name" required
@@ -140,10 +135,6 @@ export function Register() {
           <Input id="phone" label="Phone number" type="tel" autoComplete="tel" required
             hint="Digits only, e.g. +919876543210."
             value={form.phone} onChange={set("phone")} error={errors.phone} />
-          <Input id="password" label="Password" type="password" autoComplete="new-password" required
-            hint="At least 8 characters." value={form.password} onChange={set("password")} error={errors.password} />
-          <Input id="confirm" label="Confirm password" type="password" autoComplete="new-password" required
-            value={form.confirm} onChange={set("confirm")} error={errors.confirm} />
           {errors.form && <p className="error" role="alert">{errors.form}</p>}
           <Button type="submit" disabled={pending}>{pending ? "Creating…" : "Create account"}</Button>
         </form>

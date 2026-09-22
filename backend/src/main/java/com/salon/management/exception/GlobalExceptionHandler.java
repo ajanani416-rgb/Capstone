@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UnverifiedPhoneException.class)
     public ResponseEntity<ErrorResponse> unverified(UnverifiedPhoneException ex) {
-        // 403 (not 401): the password was correct, only the OTP step remains.
+        // 403 (not 401): the number exists, only the OTP step remains.
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(ex.getMessage()));
     }
 

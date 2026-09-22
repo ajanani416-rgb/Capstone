@@ -72,7 +72,7 @@ class BookingApiTest {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Booker", "phone", number, "password", "Password123"))))
+                                "name", "Booker", "phone", number))))
                 .andExpect(status().isCreated());
         MvcResult result = mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)

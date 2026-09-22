@@ -2,7 +2,7 @@ package com.salon.management.dto;
 
 import com.salon.management.entity.OtpPurpose;
 
-/** Returned when a code is issued (register / login-password-ok / resend).
+/** Returned when a code is issued (register / login-lookup / resend).
  * Carries no token — the JWT only arrives after successful verification. */
 public class OtpChallengeResponse {
 
