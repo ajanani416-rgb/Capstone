@@ -155,7 +155,7 @@ table.data tbody tr:hover { background: #faf9f6; }
 .stat-value { font-size: 32px; line-height: 1.2; font-weight: 700; font-variant-numeric: tabular-nums; }
 .stat-link { font-size: 14px; font-weight: 600; color: var(--accent-strong); }
 
-/* ---------- OTP code entry (6-digit email verification) ---------- */
+/* ---------- OTP code entry (6-digit SMS verification) ---------- */
 .otp-wrap { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 .otp-boxes { display: flex; gap: 8px; }
 .otp-boxes input {
@@ -168,12 +168,53 @@ table.data tbody tr:hover { background: #faf9f6; }
 .otp-meta button { background: none; border: none; padding: 8px; min-height: 44px; font: inherit; font-weight: 600; color: var(--accent-strong); cursor: pointer; }
 .otp-meta button:disabled { opacity: 0.5; cursor: wait; }
 
-/* ---------- public footer (ui-ux-pro dashboard checklist) ---------- */
-.footer { background: var(--bg-sidebar); color: var(--text-on-dark-dim); padding: 32px; margin-top: 64px; }
+/* ---------- public footer (ui-ux-pro dashboard checklist) ---------- */.footer { background: var(--bg-sidebar); color: var(--text-on-dark-dim); padding: 32px; margin-top: 64px; }
 .footer-inner { max-width: 1280px; margin: 0 auto; display: flex; gap: 24px; flex-wrap: wrap; align-items: baseline; }
 .footer-brand { color: var(--text-on-dark); font-weight: 700; }
 .footer-inner .spacer { flex: 1; }
 .footer small { font-size: 12px; }
+
+/* ---------- intro landing (Hero + Features + CTA; inspo marquee-hero) ---------- */
+.eyebrow {
+  display: inline-block; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent-strong); margin-bottom: 16px;
+}
+.hero { padding: 48px 0 8px; max-width: 880px; }
+.hero-title {
+  margin: 0 0 16px; font-weight: 800;
+  font-size: clamp(40px, 6vw, 68px); line-height: 1.04; letter-spacing: -0.02em;
+}
+.hero-sub { font-size: 19px; line-height: 1.55; color: var(--text-secondary); margin: 0 0 28px; max-width: 640px; }
+.hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.landing-section { margin-top: clamp(72px, 9vw, 120px); }
+.landing-section h2 { font-size: clamp(24px, 3vw, 32px); margin: 0 0 8px; letter-spacing: -0.01em; }
+.section-sub { color: var(--text-secondary); margin: 0 0 24px; max-width: 640px; font-size: 17px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.role-card { display: flex; flex-direction: column; gap: 8px; }
+.role-card h3 { margin: 0; font-size: 20px; }
+.role-card ol { margin: 8px 0 16px; padding-left: 20px; color: var(--text-primary); display: grid; gap: 6px; }
+.role-card .btn { align-self: flex-start; }
+.flow { display: flex; flex-wrap: wrap; }
+.flow-step { flex: 1 1 200px; padding: 16px 20px 16px 0; }
+.flow-step + .flow-step { border-left: 1px solid var(--border); padding-left: 20px; }
+.flow-num {
+  display: inline-flex; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent-strong);
+  align-items: center; justify-content: center; font-weight: 800; margin-bottom: 8px;
+}
+.cta-band {
+  background: var(--bg-sidebar); color: var(--text-on-dark);
+  border-radius: 24px; padding: clamp(32px, 5vw, 56px);
+  text-align: center; box-shadow: var(--shadow-card);
+}
+.cta-band h2 { margin: 0 0 8px; color: var(--text-on-dark); }
+.cta-band p { color: var(--text-on-dark-dim); margin: 0 0 24px; }
+.cta-band .btn-primary { background: var(--accent); }
+@media (max-width: 768px) {
+  .split { grid-template-columns: 1fr; }
+  .flow-step + .flow-step { border-left: none; padding-left: 0; }
+}
 
 /* ---------- motion safety ---------- */
 @media (prefers-reduced-motion: reduce) {

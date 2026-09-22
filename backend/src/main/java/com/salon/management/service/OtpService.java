@@ -5,8 +5,8 @@ import com.salon.management.entity.OtpCode;
 import com.salon.management.entity.OtpPurpose;
 import com.salon.management.exception.InvalidOtpException;
 import com.salon.management.exception.OtpExpiredException;
-import com.salon.management.mail.OtpMailSender;
 import com.salon.management.repository.OtpCodeRepository;
+import com.salon.management.sms.OtpSmsSender;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -20,46 +20,46 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Email OTP lifecycle (TASK-009). Codes are 6 digits, SHA-256 hashed at rest,
- * 10-minute TTL, 5 attempts, single-active-code per (email, purpose).
- * Plaintexts never touch the database or logs — except the mail sender, whose
- * console implementation is demo-only by design.
+ * SMS OTP lifecycle. Codes are 6 digits, SHA-256 hashed at rest, 10-minute
+ * TTL, 5 attempts, single-active-code per (phone, purpose). Plaintexts never
+ * touch the database or logs — except the SMS sender, whose console
+ * implementation is demo-only by design.
  */
 @Service
 public class OtpService {
 
     private final OtpCodeRepository codes;
     private final OtpCodeStore store;
-    private final OtpMailSender mailSender;
+    private final OtpSmsSender smsSender;
     private final long ttlMinutes;
     private final boolean exposeLastCode;
     private final SecureRandom random = new SecureRandom();
     private final Map<String, String> lastIssued = new ConcurrentHashMap<>();
 
-    public OtpService(OtpCodeRepository codes, OtpCodeStore store, OtpMailSender mailSender,
+    public OtpService(OtpCodeRepository codes, OtpCodeStore store, OtpSmsSender smsSender,
             @Value("${app.otp.ttl-minutes:10}") long ttlMinutes,
             @Value("${app.otp.expose-last-code:false}") boolean exposeLastCode) {
         this.codes = codes;
         this.store = store;
-        this.mailSender = mailSender;
+        this.smsSender = smsSender;
         this.ttlMinutes = ttlMinutes;
         this.exposeLastCode = exposeLastCode;
     }
 
     /** Issues a code, invalidating any previous unused one for the pair. */
     @Transactional
-    public OtpChallengeResponse issue(String email, OtpPurpose purpose, String purposeLabel) {
-        String normalized = email.trim().toLowerCase();
-        codes.findByEmailAndPurposeAndUsedFalse(normalized, purpose)
+    public OtpChallengeResponse issue(String phone, OtpPurpose purpose, String purposeLabel) {
+        String normalized = phone.trim();
+        codes.findByPhoneAndPurposeAndUsedFalse(normalized, purpose)
                 .forEach(old -> old.setUsed(true));
         String code = String.format("%06d", random.nextInt(900000) + 100000);
         OtpCode otp = new OtpCode(normalized, sha256(code), purpose,
                 LocalDateTime.now().plusMinutes(ttlMinutes));
         codes.save(otp);
-        mailSender.sendCode(normalized, code, purposeLabel);
+        smsSender.sendCode(normalized, code, purposeLabel);
         if (exposeLastCode) {
             // TEST-ONLY hook (app.otp.expose-last-code, true in test properties).
-            // Lets API tests complete the flow without reading email.
+            // Lets API tests complete the flow without reading an SMS.
             lastIssued.put(key(normalized, purpose), code);
         }
         return new OtpChallengeResponse(normalized, purpose, ttlMinutes * 60);
@@ -69,10 +69,10 @@ public class OtpService {
      * Bookkeeping commits via OtpCodeStore: this method throws, so same-txn
      * updates would roll back and lockout would never accumulate. */
     @Transactional
-    public void verify(String email, OtpPurpose purpose, String code) {
-        String normalized = email.trim().toLowerCase();
+    public void verify(String phone, OtpPurpose purpose, String code) {
+        String normalized = phone.trim();
         OtpCode otp = codes
-                .findFirstByEmailAndPurposeAndUsedFalseOrderByCreatedAtDesc(normalized, purpose)
+                .findFirstByPhoneAndPurposeAndUsedFalseOrderByCreatedAtDesc(normalized, purpose)
                 .orElseThrow(InvalidOtpException::new);
         if (!otp.isLive()) {
             store.markUsed(otp.getId());
@@ -89,12 +89,12 @@ public class OtpService {
     }
 
     /** Test-only accessor; always null unless expose-last-code is enabled. */
-    public String lastIssuedCode(String email, OtpPurpose purpose) {
-        return lastIssued.get(key(email.trim().toLowerCase(), purpose));
+    public String lastIssuedCode(String phone, OtpPurpose purpose) {
+        return lastIssued.get(key(phone.trim(), purpose));
     }
 
-    private static String key(String email, OtpPurpose purpose) {
-        return email + "|" + purpose.name();
+    private static String key(String phone, OtpPurpose purpose) {
+        return phone + "|" + purpose.name();
     }
 
     static String sha256(String value) {

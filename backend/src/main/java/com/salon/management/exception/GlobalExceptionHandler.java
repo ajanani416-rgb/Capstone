@@ -37,8 +37,8 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("Validation failed. Review the highlighted fields.", fields));
     }
 
-    @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ErrorResponse> duplicate(DuplicateEmailException ex) {
+    @ExceptionHandler(DuplicatePhoneException.class)
+    public ResponseEntity<ErrorResponse> duplicate(DuplicatePhoneException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex.getMessage()));
     }
 
@@ -47,8 +47,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ex.getMessage()));
     }
 
-    @ExceptionHandler(UnverifiedEmailException.class)
-    public ResponseEntity<ErrorResponse> unverified(UnverifiedEmailException ex) {
+    @ExceptionHandler(UnverifiedPhoneException.class)
+    public ResponseEntity<ErrorResponse> unverified(UnverifiedPhoneException ex) {
         // 403 (not 401): the password was correct, only the OTP step remains.
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(ex.getMessage()));
     }

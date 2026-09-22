@@ -24,7 +24,10 @@ QueueService + `/api/queue`, live wait on detail, wait column. Fixed shared-H2 s
 ## TASK-008 Final review — DONE
 Five perspectives, dead-code removal, README demo + limitations, preview-200 proof.
 
-## TASK-009 Email-OTP + UI refresh — DONE
+## TASK-009 Email-OTP + UI refresh — DONE (superseded by TASK-010)
 V4 (verified + otp_codes, grandfathered), OtpService (SHA-256, 10-min, 5 tries, single-active; REQUIRES_NEW bookkeeping — same-txn rollback bug found by test, fixed), console/SMTP mail abstraction, auth rewrite (challenges, 403-unverified, resend), OtpStep UI + two-step pages, footer/session/stat cards/deepened accent/reduced-motion, single-host serving (static/ + SPA fallback + `/api/health`). Fixed useAsync infinite fetch loop (in-browser storm → single request). 37/37 green + live single-host proof (register→code→JWT→book→queue, in-browser to dashboard).
+
+## TASK-010 SMS-OTP identity (phone replaces email) — DONE
+Operator decision: Gmail OTP removed entirely (mail package + starter-mail deleted), phone is the login identity and SMS OTP channel. V6 (users.email→phone incl. admin backfill `+910000000001`, otp_codes.email→phone with V4-index drop first — H2 refuses referenced-column drops), entities/DTOs/repos/services/exceptions renamed to phone, console SMS sender (log-only, gateway later via `app.sms.gateway`), frontend auth pages + OtpStep + customers table to phone, all docs updated. 37/37 green.
 
 ## DECISION_REQUIRED — none open (D1–D6 all resolved)

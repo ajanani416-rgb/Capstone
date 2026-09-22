@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,18 +61,24 @@ class BookingApiTest {
         barber = barbers.save(new Barber("Barber-" + UUID.randomUUID(), null, true));
     }
 
+    private static final AtomicLong PHONE_SEQ = new AtomicLong(9193000000L);
+
+    private static String phone() {
+        return "+" + PHONE_SEQ.getAndIncrement();
+    }
+
     private String token() throws Exception {
-        String email = "booker-" + UUID.randomUUID() + "@example.com";
+        String number = phone();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Booker", "email", email, "password", "Password123"))))
+                                "name", "Booker", "phone", number, "password", "Password123"))))
                 .andExpect(status().isCreated());
         MvcResult result = mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "email", email,
-                                "code", otpService.lastIssuedCode(email, OtpPurpose.REGISTER),
+                                "phone", number,
+                                "code", otpService.lastIssuedCode(number, OtpPurpose.REGISTER),
                                 "purpose", "REGISTER"))))
                 .andExpect(status().isOk())
                 .andReturn();

@@ -13,7 +13,7 @@ import com.salon.management.repository.OtpCodeRepository;
 import com.salon.management.service.OtpService;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,99 +36,105 @@ class OtpApiTest {
     @Autowired
     private OtpCodeRepository codes;
 
+    private static final AtomicLong PHONE_SEQ = new AtomicLong(9192000000L);
+
+    private static String phone() {
+        return "+" + PHONE_SEQ.getAndIncrement();
+    }
+
     private String json(Object o) throws Exception {
         return objectMapper.writeValueAsString(o);
     }
 
-    private String register(String email) throws Exception {
+    private String register(String phone) throws Exception {
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("name", "O", "email", email,
+                        .content(json(Map.of("name", "O", "phone", phone,
                                 "password", "Password123"))))
                 .andExpect(status().isCreated());
-        return otpService.lastIssuedCode(email, OtpPurpose.REGISTER);
+        return otpService.lastIssuedCode(phone, OtpPurpose.REGISTER);
     }
 
-    private void verify(String email, String code, OtpPurpose purpose, int expected)
+    private void verify(String phone, String code, OtpPurpose purpose, int expected)
             throws Exception {
         mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("email", email, "code", code,
+                        .content(json(Map.of("phone", phone, "code", code,
                                 "purpose", purpose.name()))))
                 .andExpect(status().is(expected));
     }
 
     @Test
     void resendInvalidatesPreviousCode() throws Exception {
-        String mail = "re-" + UUID.randomUUID() + "@example.com";
-        String first = register(mail);
+        String number = phone();
+        String first = register(number);
         mvc.perform(post("/api/auth/otp/resend")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("email", mail, "purpose", "REGISTER"))))
+                        .content(json(Map.of("phone", number, "purpose", "REGISTER"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.purpose", is("REGISTER")));
-        String second = otpService.lastIssuedCode(mail, OtpPurpose.REGISTER);
+        String second = otpService.lastIssuedCode(number, OtpPurpose.REGISTER);
         // Old code is dead even if it differs (single-active-code rule).
         if (!first.equals(second)) {
-            verify(mail, first, OtpPurpose.REGISTER, 401);
+            verify(number, first, OtpPurpose.REGISTER, 401);
         }
-        verify(mail, second, OtpPurpose.REGISTER, 200);
+        verify(number, second, OtpPurpose.REGISTER, 200);
     }
 
     @Test
     void fiveWrongAttemptsExhaustTo410() throws Exception {
-        String mail = "ex-" + UUID.randomUUID() + "@example.com";
-        register(mail);
+        String number = phone();
+        register(number);
         for (int i = 0; i < OtpCode.MAX_ATTEMPTS - 1; i++) {
-            verify(mail, "000000", OtpPurpose.REGISTER, 401);
+            verify(number, "000000", OtpPurpose.REGISTER, 401);
         }
         // Fifth wrong try: the code dies and says 410 — request a fresh one.
-        verify(mail, "000000", OtpPurpose.REGISTER, 410);
+        verify(number, "000000", OtpPurpose.REGISTER, 410);
     }
 
     @Test
     void expiredCodeIs410() throws Exception {
-        String mail = "old-" + UUID.randomUUID() + "@example.com";
-        String code = register(mail);
+        String number = phone();
+        String code = register(number);
         OtpCode otp = codes
-                .findFirstByEmailAndPurposeAndUsedFalseOrderByCreatedAtDesc(
-                        mail, OtpPurpose.REGISTER)
+                .findFirstByPhoneAndPurposeAndUsedFalseOrderByCreatedAtDesc(
+                        number, OtpPurpose.REGISTER)
                 .orElseThrow();
         otp.setExpiresAt(LocalDateTime.now().minusMinutes(1));
         codes.saveAndFlush(otp);
-        verify(mail, code, OtpPurpose.REGISTER, 410);
+        verify(number, code, OtpPurpose.REGISTER, 410);
     }
 
     @Test
     void registerPurposeCodeCannotLogin() throws Exception {
-        String mail = "xp-" + UUID.randomUUID() + "@example.com";
-        String code = register(mail);
+        String number = phone();
+        String code = register(number);
         mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("email", mail, "code", code,
+                        .content(json(Map.of("phone", number, "code", code,
                                 "purpose", "LOGIN"))))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void resendAfterVerifiedIs400() throws Exception {
-        String mail = "done-" + UUID.randomUUID() + "@example.com";
-        String code = register(mail);
-        verify(mail, code, OtpPurpose.REGISTER, 200);
+        String number = phone();
+        String code = register(number);
+        verify(number, code, OtpPurpose.REGISTER, 200);
         mvc.perform(post("/api/auth/otp/resend")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("email", mail, "purpose", "REGISTER"))))
+                        .content(json(Map.of("phone", number, "purpose", "REGISTER"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", containsString("already verified")));
     }
 
     @Test
     void malformedCodeIs400() throws Exception {
-        String mail = "bad-" + UUID.randomUUID() + "@example.com";
-        register(mail);
+        String number = phone();
+        register(number);
         mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("email", mail, "code", "abc",
+                        .content(json(Map.of("phone", number, "code", "abc",
                                 "purpose", "REGISTER"))))
                 .andExpect(status().isBadRequest());
     }

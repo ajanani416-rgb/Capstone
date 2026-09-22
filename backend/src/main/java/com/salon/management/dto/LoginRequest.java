@@ -1,24 +1,24 @@
 package com.salon.management.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
-/** POST /api/auth/login body. */
+/** POST /api/auth/login body. Phone + password; a verified code follows. */
 public class LoginRequest {
 
-    @NotBlank(message = "Email is required.")
-    @Email(message = "Enter a valid email address.")
-    private String email;
+    @NotBlank(message = "Phone number is required.")
+    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Enter a valid phone number.")
+    private String phone;
 
     @NotBlank(message = "Password is required.")
     private String password;
 
-    public String getEmail() {
-        return email;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getPassword() {

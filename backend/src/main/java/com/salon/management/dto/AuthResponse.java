@@ -10,14 +10,14 @@ public class AuthResponse {
     private final String tokenType = "Bearer";
     private final Long id;
     private final String name;
-    private final String email;
+    private final String phone;
     private final Role role;
 
-    public AuthResponse(String token, Long id, String name, String email, Role role) {
+    public AuthResponse(String token, Long id, String name, String phone, Role role) {
         this.token = token;
         this.id = id;
         this.name = name;
-        this.email = email;
+        this.phone = phone;
         this.role = role;
     }
 
@@ -37,8 +37,8 @@ public class AuthResponse {
         return name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getPhone() {
+        return phone;
     }
 
     public Role getRole() {

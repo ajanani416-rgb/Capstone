@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /** Data access for {@link OtpCode}. */
 public interface OtpCodeRepository extends JpaRepository<OtpCode, Long> {
 
-    Optional<OtpCode> findFirstByEmailAndPurposeAndUsedFalseOrderByCreatedAtDesc(
-            String email, OtpPurpose purpose);
+    Optional<OtpCode> findFirstByPhoneAndPurposeAndUsedFalseOrderByCreatedAtDesc(
+            String phone, OtpPurpose purpose);
 
-    List<OtpCode> findByEmailAndPurposeAndUsedFalse(String email, OtpPurpose purpose);
+    List<OtpCode> findByPhoneAndPurposeAndUsedFalse(String phone, OtpPurpose purpose);
 }

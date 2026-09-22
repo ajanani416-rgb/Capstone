@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,18 +68,24 @@ class AdminApiTest {
         barber = barbers.save(new Barber("Barber-" + UUID.randomUUID(), null, true));
     }
 
+    private static final AtomicLong PHONE_SEQ = new AtomicLong(9195000000L);
+
+    private static String phone() {
+        return "+" + PHONE_SEQ.getAndIncrement();
+    }
+
     private String customerToken() throws Exception {
-        String email = "cust-" + UUID.randomUUID() + "@example.com";
+        String number = phone();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Cust", "email", email, "password", "Password123"))))
+                                "name", "Cust", "phone", number, "password", "Password123"))))
                 .andExpect(status().isCreated());
         MvcResult r = mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "email", email,
-                                "code", otpService.lastIssuedCode(email, OtpPurpose.REGISTER),
+                                "phone", number,
+                                "code", otpService.lastIssuedCode(number, OtpPurpose.REGISTER),
                                 "purpose", "REGISTER"))))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -86,7 +93,7 @@ class AdminApiTest {
     }
 
     private String adminToken() {
-        User admin = users.save(new User("Admin", "admin-" + UUID.randomUUID() + "@example.com",
+        User admin = users.save(new User("Admin", phone(),
                 "unused-hash", Role.ADMIN));
         return jwtService.generateToken(admin.getId(), "ADMIN");
     }
@@ -261,16 +268,16 @@ class AdminApiTest {
     @Test
     void usersListHasNoSecrets() throws Exception {
         String cust = customerToken();
-        String email = "listed-" + UUID.randomUUID() + "@example.com";
+        String number = phone();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Listed", "email", email, "password", "Password123"))))
+                                "name", "Listed", "phone", number, "password", "Password123"))))
                 .andExpect(status().isCreated());
 
         mvc.perform(get("/api/users").header("Authorization", "Bearer " + adminToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[?(@.email=='" + email + "')]", hasSize(1)))
+                .andExpect(jsonPath("$[?(@.phone=='" + number + "')]", hasSize(1)))
                 .andExpect(jsonPath("$[*].passwordHash").doesNotExist())
                 .andExpect(jsonPath("$[*].password").doesNotExist());
         mvc.perform(get("/api/users").header("Authorization", "Bearer " + cust))

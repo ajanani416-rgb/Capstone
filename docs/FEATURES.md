@@ -2,16 +2,16 @@
 
 Each feature traces to Problem_Statement.md §8. All decisions D1–D6 resolved; no UNKNOWN remains.
 
-## F-01 Authentication — register / login (+ email OTP)
-- Purpose: identify users with proven email ownership. Actor: Customer, Admin.
+## F-01 Authentication — register / login (+ SMS OTP)
+- Purpose: identify users with proven phone ownership. Actor: Customer, Admin.
 - Preconditions: none.
-- Register flow: submit name+email+password → UNVERIFIED customer created → 6-digit code emailed → verify → account activates AND session starts (201 challenge, then 200 JWT).
-- Login flow: email+password check → 6-digit code emailed → verify → JWT (200 challenge, then 200 JWT). Correct password + unverified email → 403 with a fresh REGISTER code (UI branches on 403).
-- Rules (locked TASK-009): codes SHA-256 at rest, 10-min TTL, 5 attempts then 410, single-active per (email, purpose), REGISTER codes can't log in; wrong codes answer 401 uniformly; resend invalidates previous.
-- Validation: email format, password 8–100, unique email (409).
+- Register flow: submit name+phone+password → UNVERIFIED customer created → 6-digit code texted → verify → account activates AND session starts (201 challenge, then 200 JWT).
+- Login flow: phone+password check → 6-digit code texted → verify → JWT (200 challenge, then 200 JWT). Correct password + unverified phone → 403 with a fresh REGISTER code (UI branches on 403).
+- Rules (locked): codes SHA-256 at rest, 10-min TTL, 5 attempts then 410, single-active per (phone, purpose), REGISTER codes can't log in; wrong codes answer 401 uniformly; resend invalidates previous.
+- Validation: phone format (`^\+?[0-9]{7,15}$`), password 8–100, unique phone (409).
 - Authorization (D4): public register creates CUSTOMER only; role field is not accepted; admin comes from the V2 seed migration (grandfathered verified).
 - Auth mechanism (D1): JWT HS256, 24h expiry, Bearer header. See DATA_API.md.
-- Acceptance: no JWT without verified OTP; wrong password = 401 with friendly message; no password/token in logs (console-mail prints the issued code by demo design).
+- Acceptance: no JWT without verified OTP; wrong password = 401 with friendly message; no password/token in logs (console-SMS prints the issued code by demo design).
 
 ## F-02 Browse services
 - Actor: Customer (public read). Flow: GET services → list cards (name, duration, price, active only for customers; admins see inactive too).

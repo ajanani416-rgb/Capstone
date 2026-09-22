@@ -2,11 +2,11 @@
 
 Route map mirrors the React Router tree. Auth column = backend enforcement (frontend guard is UX only).
 
-## S-01 Landing `/` (public)
-Purpose: explain product, CTA to services/register. Components: Navbar, hero (headline+2 CTAs), 3-step cards, footer. Responsive: hero stacks ≤768px.
+## S-01 Landing `/` (public intro)
+Order per brief: appointment-story hero (Login/Register top-right in navbar) → live services preview (real catalog) → role tracks (client books / admin approves from schedule) → approval flow strip → CTA band → footer. Empty catalog hides the preview section. Responsive: hero stacks ≤768px.
 
 ## S-02 Register `/register`, S-03 Login `/login` (public)
-Register: name/email/password/confirm with inline validation → 201 challenge → OTP step (6 boxes, countdown, resend) → verify → auto-login → role landing. Login: email+password → challenge → OTP step → session; 403 unverified jumps to REGISTER OTP. 409 email-taken; 401 bad credentials; input preserved on failure; submit disabled while pending.
+Register: name/phone/password/confirm with inline validation → 201 challenge → OTP step (6 boxes, countdown, resend) → verify → auto-login → role landing. Login: phone+password → challenge → OTP step → session; 403 unverified jumps to REGISTER OTP. 409 phone-taken; 401 bad credentials; input preserved on failure; submit disabled while pending.
 
 ## S-04 Customer Dashboard `/customer` (CUSTOMER)
 Next appointment + queue position + quick actions. States: loading / has-appointment / none ("No appointments yet — Book your first") / error+retry.
@@ -33,6 +33,6 @@ Position, service, barber, time, queue #, live wait, status. Backend order, neve
 Table + modal form (full fields incl. active toggle) + two-step delete (referenced → 409 remedy). Validation per F-09/F-10.
 
 ## S-14 Customers `/admin/customers` (ADMIN, read-only)
-ID/name/email/role/since table. No writes by design (D6).
+ID/name/phone/role/since table. No writes by design (D6).
 
 Shared: every screen implements UI_UX.md §3 states; tables collapse to cards ≤768px.

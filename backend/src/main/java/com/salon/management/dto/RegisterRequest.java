@@ -1,22 +1,22 @@
 package com.salon.management.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /** POST /api/auth/register body. Role is intentionally absent — public
  * registration always creates CUSTOMER (decision D4). Admins come from the
- * V2 seed migration. */
+ * V2 seed migration. Phone is the login identity and the SMS OTP channel. */
 public class RegisterRequest {
 
     @NotBlank(message = "Name is required.")
     @Size(max = 255, message = "Name must be at most 255 characters.")
     private String name;
 
-    @NotBlank(message = "Email is required.")
-    @Email(message = "Enter a valid email address.")
-    @Size(max = 255, message = "Email must be at most 255 characters.")
-    private String email;
+    @NotBlank(message = "Phone number is required.")
+    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Enter a valid phone number.")
+    @Size(max = 20, message = "Phone number must be at most 20 characters.")
+    private String phone;
 
     @NotBlank(message = "Password is required.")
     @Size(min = 8, max = 100, message = "Password must be 8–100 characters.")
@@ -30,12 +30,12 @@ public class RegisterRequest {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getPassword() {

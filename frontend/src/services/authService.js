@@ -1,8 +1,8 @@
 import { request } from "./api.js";
 
-// Email-OTP auth (TASK-009). Neither register nor login returns a session:
-// both return a challenge { email, purpose, expiresInSeconds }. The JWT
-// arrives only from verifyOtp. Login with an unverified email answers 403
+// Phone-OTP auth. Neither register nor login returns a session:
+// both return a challenge { phone, purpose, expiresInSeconds }. The JWT
+// arrives only from verifyOtp. Login with an unverified number answers 403
 // (and issues a REGISTER code) — callers branch on status alone.
 export const authService = {
   register: (input) => request("/api/auth/register", { method: "POST", body: input }),

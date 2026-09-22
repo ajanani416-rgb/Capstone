@@ -13,12 +13,12 @@
   - Foreign key: No
   - Nullable: No
   - Description: User full name
-- Column: email
-  - Data type: VARCHAR(255)
+- Column: phone
+  - Data type: VARCHAR(20)
   - Primary key: No
   - Foreign key: No
   - Nullable: No
-  - Description: User email address
+  - Description: User phone number (login identity + SMS OTP channel, unique)
 - Column: password_hash
   - Data type: VARCHAR(255)
   - Primary key: No

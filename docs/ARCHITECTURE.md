@@ -9,11 +9,11 @@ Controller (HTTP, routing, basic validation) → Service (business rules, transa
 ## 3. Frontend layers (`frontend/src/`)
 `pages/ → components/ → services/ → routes/`, plus `layouts/ hooks/ auth/ utils/ styles/`. API calls only via `services/*.js` (baseURL via env, Bearer attach from tokenStore, single 401 handler). `useAsync` loads once (predicate via ref — inline callbacks must never retrigger fetches). No business-rule duplication.
 
-## 4. AuthN/Z (locked: JWT + email OTP, D1+TASK-009)
-Spring Security stateless + JWT; register/login return OTP challenges, `verify-otp` mints the JWT. Public: `/`, SPA routes, `/api/health`, POST `/api/auth/**`, GET catalog. Everything else needs a bearer token; writes + admin reads additionally `@PreAuthorize("hasRole('ADMIN')")`. Frontend guards are UX; backend matchers + method security enforce. Secrets via env only (`DB_URL/DB_USERNAME/DB_PASSWORD/JWT_SECRET`, `app.mail.*` for SMTP).
+## 4. AuthN/Z (locked: JWT + SMS OTP, D1)
+Spring Security stateless + JWT; register/login return OTP challenges, `verify-otp` mints the JWT. Public: `/`, SPA routes, `/api/health`, POST `/api/auth/**`, GET catalog. Everything else needs a bearer token; writes + admin reads additionally `@PreAuthorize("hasRole('ADMIN')")`. Frontend guards are UX; backend matchers + method security enforce. Secrets via env only (`DB_URL/DB_USERNAME/DB_PASSWORD/JWT_SECRET`).
 
-## 5. Data (see database-schema.md + migrations V1→V4)
-users (verified) / services / barbers / appointments (V3 slot-unique) / otp_codes (hashed, TTL, attempts). JPA: `@ManyToOne` appointment→each parent; avoid N+1 via fetch discipline. Flyway owns schema; `ddl-auto=validate`.
+## 5. Data (see database-schema.md + migrations V1→V6)
+users (phone identity, verified) / services / barbers / appointments (V3 slot-unique) / otp_codes (phone-keyed, hashed, TTL, attempts). JPA: `@ManyToOne` appointment→each parent; avoid N+1 via fetch discipline. Flyway owns schema; `ddl-auto=validate`.
 
 ## 6. What we do NOT build
 Microservices, K8s, Redis/Kafka, GraphQL, WS live updates (poll instead), payments, analytics engine.

@@ -6,18 +6,18 @@ import com.salon.management.entity.OtpPurpose;
  * Carries no token — the JWT only arrives after successful verification. */
 public class OtpChallengeResponse {
 
-    private final String email;
+    private final String phone;
     private final OtpPurpose purpose;
     private final long expiresInSeconds;
 
-    public OtpChallengeResponse(String email, OtpPurpose purpose, long expiresInSeconds) {
-        this.email = email;
+    public OtpChallengeResponse(String phone, OtpPurpose purpose, long expiresInSeconds) {
+        this.phone = phone;
         this.purpose = purpose;
         this.expiresInSeconds = expiresInSeconds;
     }
 
-    public String getEmail() {
-        return email;
+    public String getPhone() {
+        return phone;
     }
 
     public OtpPurpose getPurpose() {

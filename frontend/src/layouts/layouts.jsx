@@ -50,7 +50,7 @@ function SidebarShell({ title, mark, links, base, children }) {
           ))}
         </nav>
         <div className="session">
-          <div>{user?.email ?? "Signed out"}</div>
+          <div>{user?.phone ?? "Signed out"}</div>
           {user && <button onClick={logout}>Log out</button>}
         </div>
       </aside>

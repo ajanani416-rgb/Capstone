@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -40,8 +41,14 @@ class DomainPersistenceTest {
     @Autowired
     private AppointmentRepository appointments;
 
+    private static final AtomicLong PHONE_SEQ = new AtomicLong(9196000000L);
+
+    private static String phone() {
+        return "+" + PHONE_SEQ.getAndIncrement();
+    }
+
     private User customer() {
-        return new User("Asha", "asha-" + System.nanoTime() + "@example.com",
+        return new User("Asha", phone(),
                 "$2a$10$testhashplaceholder0000000000000000000000", Role.CUSTOMER);
     }
 
@@ -76,12 +83,12 @@ class DomainPersistenceTest {
     }
 
     @Test
-    void emailIsUnique() {
-        String email = "dup-" + System.nanoTime() + "@example.com";
-        users.saveAndFlush(new User("One", email, "hash", Role.CUSTOMER));
+    void phoneIsUnique() {
+        String number = phone();
+        users.saveAndFlush(new User("One", number, "hash", Role.CUSTOMER));
 
         assertThatThrownBy(() -> users.saveAndFlush(
-                new User("Two", email, "hash", Role.CUSTOMER)))
+                new User("Two", number, "hash", Role.CUSTOMER)))
                 .isInstanceOf(Exception.class);
     }
 

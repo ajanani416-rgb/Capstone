@@ -9,8 +9,9 @@ import jakarta.validation.constraints.Pattern;
  * returns a session); LOGIN finishes a password-checked login (returns JWT). */
 public class VerifyOtpRequest {
 
-    @NotBlank(message = "Email is required.")
-    private String email;
+    @NotBlank(message = "Phone number is required.")
+    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Enter a valid phone number.")
+    private String phone;
 
     @NotBlank(message = "Code is required.")
     @Pattern(regexp = "\\d{6}", message = "Code must be 6 digits.")
@@ -19,12 +20,12 @@ public class VerifyOtpRequest {
     @NotNull(message = "Purpose is required.")
     private OtpPurpose purpose;
 
-    public String getEmail() {
-        return email;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getCode() {

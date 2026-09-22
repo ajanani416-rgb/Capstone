@@ -9,15 +9,16 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
  * Customer or admin account. Maps docs/database-schema.md users table (+V4
- * verified flag). Passwords are stored as BCrypt hashes (never plaintext) —
+ * verified flag, +V6 phone identity). Phone is the login identity and the SMS
+ * OTP channel. Passwords are stored as BCrypt hashes (never plaintext) —
  * hashing happens in the auth service (TASK-004), this entity only persists
  * the hash.
  */
@@ -35,10 +36,10 @@ public class User {
     private String name;
 
     @NotBlank
-    @Email
-    @Size(max = 255)
-    @Column(nullable = false, unique = true)
-    private String email;
+    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Enter a valid phone number.")
+    @Size(max = 20)
+    @Column(nullable = false, unique = true, length = 20)
+    private String phone;
 
     @NotBlank
     @Size(max = 255)
@@ -50,8 +51,8 @@ public class User {
     @Column(nullable = false, length = 50)
     private Role role;
 
-    /** Email ownership proven via OTP. Public registration creates unverified
-     * rows that cannot log in until verified (TASK-009). */
+    /** Phone ownership proven via SMS OTP. Public registration creates
+     * unverified rows that cannot log in until verified (TASK-009). */
     @NotNull
     @Column(nullable = false)
     private Boolean verified = false;
@@ -62,9 +63,9 @@ public class User {
     protected User() {
     }
 
-    public User(String name, String email, String passwordHash, Role role) {
+    public User(String name, String phone, String passwordHash, Role role) {
         this.name = name;
-        this.email = email;
+        this.phone = phone;
         this.passwordHash = passwordHash;
         this.role = role;
     }
@@ -88,12 +89,12 @@ public class User {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getPasswordHash() {

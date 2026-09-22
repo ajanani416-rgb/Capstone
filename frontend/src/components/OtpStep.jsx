@@ -3,7 +3,7 @@ import { Button } from "./ui.jsx";
 import { authService } from "../services/authService.js";
 import { ApiError } from "../services/api.js";
 
-/* Six-box email-code entry. Props: email, purpose ("REGISTER"|"LOGIN"),
+/* Six-box SMS-code entry. Props: phone, purpose ("REGISTER"|"LOGIN"),
    expiresInSeconds, onVerified(session). Handles paste, backspace nav,
    resend with cooldown, and maps 401 (wrong) / 410 (dead → resend) / 400. */
 
@@ -13,7 +13,7 @@ function formatCountdown(total) {
   return `${m}:${s}`;
 }
 
-export function OtpStep({ email, purpose, expiresInSeconds, onVerified, onBack }) {
+export function OtpStep({ phone, purpose, expiresInSeconds, onVerified, onBack }) {
   const [boxes, setBoxes] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState(null);
   const [pending, setPending] = useState(false);
@@ -72,10 +72,10 @@ export function OtpStep({ email, purpose, expiresInSeconds, onVerified, onBack }
     setPending(true);
     setError(null);
     try {
-      const session = await authService.verifyOtp({ email, code, purpose });
+      const session = await authService.verifyOtp({ phone, code, purpose });
       onVerified({
         token: session.token, id: session.id,
-        name: session.name, email: session.email, role: session.role,
+        name: session.name, phone: session.phone, role: session.role,
       });
     } catch (err) {
       if (err instanceof ApiError && err.status === 410) {
@@ -92,7 +92,7 @@ export function OtpStep({ email, purpose, expiresInSeconds, onVerified, onBack }
     setPending(true);
     setError(null);
     try {
-      const challenge = await authService.resendOtp({ email, purpose });
+      const challenge = await authService.resendOtp({ phone, purpose });
       setBoxes(["", "", "", "", "", ""]);
       setRemaining(challenge.expiresInSeconds ?? 600);
       setCooldown(30);
@@ -106,7 +106,7 @@ export function OtpStep({ email, purpose, expiresInSeconds, onVerified, onBack }
 
   return (
     <form onSubmit={submit} noValidate>
-      <p>We emailed a 6-digit code to <strong>{email}</strong>. Enter it below to continue.</p>
+      <p>We texted a 6-digit code to <strong>{phone}</strong>. Enter it below to continue.</p>
       <div className="otp-wrap">
         <div className="otp-boxes" onPaste={onPaste} role="group" aria-label="6-digit verification code">
           {boxes.map((v, i) => (

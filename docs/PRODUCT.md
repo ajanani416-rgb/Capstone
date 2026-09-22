@@ -19,7 +19,7 @@ REQUIREMENT (Problem_Statement.md §10):
 - Poor customer experience
 
 ## 4. User goals
-- Customer: book without calling, prove email ownership via OTP, see queue number, know status/wait.
+- Customer: book without calling, prove phone ownership via SMS OTP, see queue number, know status/wait.
 - Admin: see day's appointments, control queue order, update status, keep service/barber catalog correct.
 
 ## 5. Product goals
@@ -28,7 +28,7 @@ REQUIREMENT (Problem_Statement.md §10):
 - Understandable, defensible capstone MVP.
 
 ## 6. MVP scope (REQUIREMENT, Problem_Statement.md §7–§8)
-1. Customer registration + email-OTP verification + login + OTP
+1. Customer registration + SMS-OTP verification + login + OTP
 2. Browse services + view barbers
 3. Book appointment (service + barber + date + time) → queue number assigned
 4. Customer: view own appointments, track status + live wait
@@ -36,7 +36,7 @@ REQUIREMENT (Problem_Statement.md §10):
 6. Live day queue with computed waits
 
 ## 7. Future scope (Problem_Statement.md §13 — explicitly NOT MVP)
-Real-SMTP hardening/rotation policies, notifications/email reminders beyond OTP, analytics/prediction, payments, WebSocket live queue. Do not implement in MVP.
+Real-SMS-gateway hardening/rotation policies, notifications/reminders beyond OTP, analytics/prediction, payments, WebSocket live queue. Do not implement in MVP.
 
 ## 8. Out of scope / Non-goals
 Chat, AI chatbot, recommendations, mobile app, microservices, advanced analytics, payments.
@@ -46,7 +46,7 @@ Chat, AI chatbot, recommendations, mobile app, microservices, advanced analytics
 - Double-booking = same barber + date + time → 409 + DB unique backstop (D2, TASK-005).
 - Status set QUEUED/IN_SERVICE/COMPLETED/CANCELLED; new bookings start QUEUED; strict forward-only transitions (D3, TASK-005/006).
 - Wait = sum of service durations ahead on your barber's line, computed on read (D5-remainder, TASK-007). Order immutable, no manual reorder.
-- No JWT without verified email OTP on both register and login (TASK-009).
+- No JWT without verified SMS OTP on both register and login.
 
 ## 10. Constraints
 - Stack locked: Java 17, Spring Boot 3.2, Spring Web/Data JPA/Security, MySQL, React+Vite+React Router (Problem_Statement.md §11, backend/pom.xml verified).
@@ -57,7 +57,7 @@ Chat, AI chatbot, recommendations, mobile app, microservices, advanced analytics
 - A2: Timezone is server-local; no evidence of multi-timezone need.
 
 ## 12. Success criteria (MVP acceptance)
-- Customer can register → verify email → login (+OTP) → browse → book → see queue number + live wait.
+- Customer can register → verify number → login (+OTP) → browse → book → see queue number + live wait.
 - Admin can login (+OTP) → see appointments → update status → manage services/barbers → view queue + customers.
 - No double-booking under the exact-slot rule.
 - Responsive 390/768/1024/1440, loading/empty/error states on every API screen.
