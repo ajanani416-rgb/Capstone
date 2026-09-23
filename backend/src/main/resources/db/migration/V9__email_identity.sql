@@ -1,14 +1,15 @@
 -- V9: email + password identity (email OTP via SMTP). V1/V2/V5/V6/V7 stay
 -- frozen as history; the uncommitted V8 phone placeholder never ran anywhere
 -- shared and is superseded by this migration.
+-- (PostgreSQL dialect per TASK-013; same H2 note as V1.)
 --
 -- Identity transition: email becomes the login identity (nullable UNIQUE so
--- pre-V9 phone-only demo rows survive — MySQL and H2 both allow multiple
--- NULLs in a unique column; those rows cannot authenticate until they
--- re-register). password_hash is restored NOT NULL with an empty marker that
--- matches no BCrypt check. verified is carried into email_verified, then both
--- legacy columns are dropped. Dead phone-keyed OTP rows are dropped with
--- their column (codes live 10 minutes; none can be valid across a deploy).
+-- pre-V9 phone-only demo rows survive — PostgreSQL allows multiple NULLs in
+-- a unique column; those rows cannot authenticate until they re-register).
+-- password_hash is restored NOT NULL with an empty marker that matches no
+-- BCrypt check. verified is carried into email_verified, then both legacy
+-- columns are dropped. Dead phone-keyed OTP rows are dropped with their
+-- column (codes live 10 minutes; none can be valid across a deploy).
 --
 -- Admin backfill: the single seeded ADMIN row (V2, renamed by V5, phoned by
 -- V6) gets the operator email, the V2 BCrypt hash (Admin@123, DEV-ONLY per
@@ -26,6 +27,6 @@ ALTER TABLE users DROP COLUMN verified;
 ALTER TABLE users DROP COLUMN phone;
 
 ALTER TABLE otp_codes ADD COLUMN email VARCHAR(255) NULL;
-DROP INDEX idx_otp_phone_purpose ON otp_codes;
+DROP INDEX idx_otp_phone_purpose;
 ALTER TABLE otp_codes DROP COLUMN phone;
 CREATE INDEX idx_otp_email_purpose ON otp_codes (email, purpose);

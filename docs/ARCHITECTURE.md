@@ -1,7 +1,7 @@
 # ARCHITECTURE.md — Approved technical architecture (MVP)
 
 ## 1. High-level (locked)
-`User → React+Vite → HTTP/REST → Spring Boot (Controller→Service→Repository) → JPA/Hibernate → MySQL`. Never React→MySQL. Queue ordering computed backend-side; frontend displays. Single-host serving: the backend also serves the bundled React app (`static/` + `SpaFallbackController`); `/api/*` stays pure API.
+`User → React+Vite → HTTP/REST → Spring Boot (Controller→Service→Repository) → JPA/Hibernate → PostgreSQL`. Never React→PostgreSQL. Queue ordering computed backend-side; frontend displays. Single-host serving: the backend also serves the bundled React app (`static/` + `SpaFallbackController`); `/api/*` stays pure API.
 
 ## 2. Backend layers (package `com.salon.management`)
 Controller (HTTP, routing, basic validation) → Service (business rules, transactions; OTP bookkeeping in REQUIRES_NEW via OtpCodeStore so throws can't roll back lockout) → Repository (Spring Data JPA interfaces) → Entity (persistent model). DTOs at API boundary; entities never serialized directly. `GlobalExceptionHandler` maps exceptions → `{message, fieldErrors}` without stack traces; auth exceptions rethrown to Spring Security translators (method-level denials must 401/403, never 500). Mail leaves through the `EmailSender` interface (SMTP impl; mocked in tests). Current state: all layers implemented, 40 tests green.

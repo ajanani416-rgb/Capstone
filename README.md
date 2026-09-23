@@ -1,6 +1,6 @@
 # Smart Salon Appointment and Queue Management System
 
-A college Full Stack capstone MVP: customers register with email + password, verify their email via SMTP OTP, browse services/barbers, book appointments, receive per-day queue numbers, and track live wait estimates; admins manage appointments, the day queue, status lifecycle, catalog, and a read-only customer directory. JWT(+email-OTP)-secured Spring Boot REST API + React/Vite frontend + MySQL/Flyway. All 13 Problem_Statement functional requirements implemented; 40 backend tests green.
+A college Full Stack capstone MVP: customers register with email + password, verify their email via SMTP OTP, browse services/barbers, book appointments, receive per-day queue numbers, and track live wait estimates; admins manage appointments, the day queue, status lifecycle, catalog, and a read-only customer directory. JWT(+email-OTP)-secured Spring Boot REST API + React/Vite frontend + PostgreSQL/Flyway. All 13 Problem_Statement functional requirements implemented; 42 backend tests green.
 
 ## Features
 - Customer: register (email+password) + email OTP verification, password login, browse services & barbers, book (exact-slot conflict → friendly 409), own appointments, live queue wait on detail + today view
@@ -10,7 +10,7 @@ A college Full Stack capstone MVP: customers register with email + password, ver
 - Docs: full spec set under `docs/` (PRODUCT → DEFINITION_OF_DONE) + diagrams
 
 ## Technology Stack
-- Backend: Java 17, Spring Boot 3, Maven, Spring Web, Spring Data JPA, Spring Security, Spring Validation, Spring Mail (SMTP), MySQL, Flyway
+- Backend: Java 17, Spring Boot 3, Maven, Spring Web, Spring Data JPA, Spring Security, Spring Validation, Spring Mail (SMTP), PostgreSQL, Flyway
 - Frontend: React, Vite, JavaScript, React Router, CSS
 - Documentation: Markdown
 
@@ -18,7 +18,7 @@ A college Full Stack capstone MVP: customers register with email + password, ver
 React frontend communicates with a REST API built with Spring Boot. The application is organized with controllers, services, repositories, and entity layers. Single-host serving supported: the backend bundles the React app (`SpaFallbackController`, `/api/health` probe).
 
 ## Database
-MySQL is used as the relational database. Flyway owns migrations (V1 schema, V2 admin seed, V3 slot-unique, V4 OTP, V5 admin identity, V6 phone identity, V7 passwordless, V9 email identity); Hibernate validates (`ddl-auto=validate`).
+PostgreSQL is used as the relational database. Flyway owns migrations (V1 schema, V2 admin seed, V3 slot-unique, V4 OTP, V5 admin identity, V6 phone identity, V7 passwordless, V9 email identity); Hibernate validates (`ddl-auto=validate`).
 
 ## Folder Structure
 - `backend/` - Spring Boot backend project
@@ -31,7 +31,7 @@ MySQL is used as the relational database. Flyway owns migrations (V1 schema, V2 
 - Java 17+
 - Maven
 - Node.js 18+ and npm
-- MySQL
+- PostgreSQL
 - A Gmail account + App Password (for SMTP OTP delivery)
 
 ## How to run backend
@@ -48,9 +48,10 @@ MySQL is used as the relational database. Flyway owns migrations (V1 schema, V2 
    - `npm run build`
    - `npm run dev`
 
-## MySQL setup
-1. Create a database named `salon_management`.
-2. Update `.env` or `backend/src/main/resources/application.properties` with your connection settings.
+## PostgreSQL setup
+1. Install PostgreSQL 16 and start it (`brew install postgresql@16 && brew services start postgresql@16`, or Postgres.app).
+2. Create a database and user: `createdb salon_management` (default user `postgres`).
+3. Update `.env` or `backend/src/main/resources/application.properties` with your connection settings (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`).
 3. Create a Gmail App Password (Google Account → Security → 2-Step Verification → App passwords) and set `MAIL_USERNAME`/`MAIL_PASSWORD`/`MAIL_FROM`.
 4. Flyway runs V1 (schema) → V9 (email identity) on startup, incl. admin seed. Dev admin: `ajanani416@gmail.com` / `Admin@123` (DEV-ONLY default — change immediately in any shared environment).
 

@@ -7,8 +7,8 @@ This system uses a layered architecture to separate frontend, backend, service, 
 - Spring Boot Controller: handles HTTP requests and delegates to services.
 - Service Layer: application business logic.
 - Repository Layer: data access using Spring Data JPA.
-- Spring Data JPA / Hibernate: ORM mapping to MySQL.
-- MySQL: persistent relational database.
+- Spring Data JPA / Hibernate: ORM mapping to PostgreSQL.
+- PostgreSQL: persistent relational database.
 
 The architecture also includes security flow:
 - React

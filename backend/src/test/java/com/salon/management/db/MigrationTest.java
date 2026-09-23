@@ -12,15 +12,15 @@ import org.junit.jupiter.api.Test;
 
 /** Proves the Flyway migrations (V1 baseline + V2 admin seed + V3 slot
  * unique + V4 OTP + V5 admin identity + V6 phone identity + V7 passwordless
- * + V9 email identity) actually run cleanly and the seed is idempotent —
- * against H2 in MySQL mode, since no MySQL server is available in this
- * environment. V9 carries verified→email_verified, backfills the seeded
+ * + V9 email identity, all PostgreSQL dialect) actually run cleanly and the
+ * seed is idempotent — against H2 in PostgreSQL mode, since the suite owns
+ * no server. V9 carries verified→email_verified, backfills the seeded
  * admin, and drops the phone columns. */
 class MigrationTest {
 
     private static DataSource h2() {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL("jdbc:h2:mem:migrationtest;DB_CLOSE_DELAY=-1;MODE=MySQL");
+        ds.setURL("jdbc:h2:mem:migrationtest;DB_CLOSE_DELAY=-1;MODE=PostgreSQL");
         ds.setUser("sa");
         ds.setPassword("");
         return ds;

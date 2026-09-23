@@ -1,5 +1,6 @@
 -- V6: phone replaces email as the account identity and the OTP channel
 -- (SMS verification). V1/V2/V5 stay frozen as history.
+-- (PostgreSQL dialect per TASK-013; same H2 note as V1.)
 --
 -- Demo admin phone below is a DEV-ONLY placeholder (obviously fake 000000
 -- pattern): change the number immediately in any shared environment.
@@ -14,11 +15,9 @@ ALTER TABLE users ADD CONSTRAINT uq_users_phone UNIQUE (phone);
 ALTER TABLE users DROP COLUMN email;
 
 -- Old email-keyed codes are disposable (10-minute TTL): carry the value over
--- so the table stays consistent, then drop the email column. The V4 index is
--- dropped first: MySQL would cascade it, but H2 (MigrationTest) refuses to
--- drop a referenced column.
+-- so the table stays consistent, then drop the email column.
 ALTER TABLE otp_codes ADD COLUMN phone VARCHAR(20) NULL;
 UPDATE otp_codes SET phone = email;
-DROP INDEX idx_otp_email_purpose ON otp_codes;
+DROP INDEX idx_otp_email_purpose;
 ALTER TABLE otp_codes DROP COLUMN email;
 CREATE INDEX idx_otp_phone_purpose ON otp_codes (phone, purpose);

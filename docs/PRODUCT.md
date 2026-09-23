@@ -49,7 +49,7 @@ Chat, AI chatbot, recommendations, mobile app, microservices, advanced analytics
 - No JWT for unverified accounts; email OTP on register, password login after.
 
 ## 10. Constraints
-- Stack locked: Java 17, Spring Boot 3.2, Spring Web/Data JPA/Security, MySQL, React+Vite+React Router (Problem_Statement.md §11, backend/pom.xml verified).
+- Stack locked: Java 17, Spring Boot 3.2, Spring Web/Data JPA/Security, PostgreSQL, React+Vite+React Router (Problem_Statement.md §11, backend/pom.xml verified).
 - Backend owns queue ordering. Frontend displays only.
 
 ## 11. Assumptions (explicit)

@@ -25,4 +25,4 @@ Auth rules: HS256 JWT 24h Bearer; no JWT for unverified accounts; passwords BCry
 Success: resource JSON. Error: `{message, fieldErrors?}` 400/401/403/404/409/410/429/502/500. No stacks/secrets.
 
 ## UNKNOWN
-None open for MVP. Watch: no pagination; migrations proven on H2-MySQL mode + MockMvc (first real MySQL boot: watch Flyway V1→V4 + `validate`).
+None open for MVP. Watch: no pagination; migrations proven on H2-PostgreSQL mode + MockMvc (first real PostgreSQL boot: watch Flyway V1→V9 + `validate`).
