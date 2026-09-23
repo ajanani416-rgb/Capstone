@@ -2,7 +2,9 @@ erDiagram
     USER {
         int id PK
         string name
-        string phone
+        string email
+        string passwordHash
+        boolean emailVerified
         string role
         datetime createdAt
     }

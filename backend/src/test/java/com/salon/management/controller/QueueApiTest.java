@@ -14,6 +14,7 @@ import com.salon.management.entity.OtpPurpose;
 import com.salon.management.entity.Role;
 import com.salon.management.entity.Service;
 import com.salon.management.entity.User;
+import com.salon.management.mail.EmailSender;
 import com.salon.management.repository.BarberRepository;
 import com.salon.management.repository.ServiceRepository;
 import com.salon.management.repository.UserRepository;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -56,6 +58,9 @@ class QueueApiTest {
     @Autowired
     private OtpService otpService;
 
+    @MockBean
+    private EmailSender emailSender;
+
     private Service svc30;
     private Service svc45;
     private Barber barber;
@@ -70,24 +75,24 @@ class QueueApiTest {
         otherBarber = barbers.save(new Barber("OB-" + tag, null, true));
     }
 
-    private static final AtomicLong PHONE_SEQ = new AtomicLong(9194000000L);
+    private static final AtomicLong EMAIL_SEQ = new AtomicLong();
 
-    private static String phone() {
-        return "+" + PHONE_SEQ.getAndIncrement();
+    private static String email() {
+        return "queue" + EMAIL_SEQ.getAndIncrement() + "@example.com";
     }
 
     private String customerToken() throws Exception {
-        String number = phone();
+        String address = email();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Q", "phone", number))))
+                                "name", "Q", "email", address, "password", "Password123"))))
                 .andExpect(status().isCreated());
         MvcResult r = mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "phone", number,
-                                "code", otpService.lastIssuedCode(number, OtpPurpose.REGISTER),
+                                "email", address,
+                                "code", otpService.lastIssuedCode(address, OtpPurpose.REGISTER),
                                 "purpose", "REGISTER"))))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -95,7 +100,7 @@ class QueueApiTest {
     }
 
     private String adminToken() {
-        User admin = users.save(new User("A", phone(), Role.ADMIN));
+        User admin = users.save(new User("A", email(), "test-hash", Role.ADMIN));
         return jwtService.generateToken(admin.getId(), "ADMIN");
     }
 

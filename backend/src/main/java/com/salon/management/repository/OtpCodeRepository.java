@@ -9,8 +9,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /** Data access for {@link OtpCode}. */
 public interface OtpCodeRepository extends JpaRepository<OtpCode, Long> {
 
-    Optional<OtpCode> findFirstByPhoneAndPurposeAndUsedFalseOrderByCreatedAtDesc(
-            String phone, OtpPurpose purpose);
+    Optional<OtpCode> findFirstByEmailAndPurposeAndUsedFalseOrderByCreatedAtDesc(
+            String email, OtpPurpose purpose);
 
-    List<OtpCode> findByPhoneAndPurposeAndUsedFalse(String phone, OtpPurpose purpose);
+    List<OtpCode> findByEmailAndPurposeAndUsedFalse(String email, OtpPurpose purpose);
+
+    /** Latest code of any state — drives the 60-second resend cooldown. */
+    Optional<OtpCode> findFirstByEmailAndPurposeOrderByCreatedAtDesc(
+            String email, OtpPurpose purpose);
 }

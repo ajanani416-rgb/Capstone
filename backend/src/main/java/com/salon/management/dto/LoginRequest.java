@@ -1,21 +1,34 @@
 package com.salon.management.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-/** POST /api/auth/login body. Phone only — no password; the OTP challenge
- * that follows is the entire authentication. */
+/** POST /api/auth/login body. Verified accounts get the JWT immediately;
+ * unverified ones answer 403 and the UI jumps to the verification screen. */
 public class LoginRequest {
 
-    @NotBlank(message = "Phone number is required.")
-    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Enter a valid phone number.")
-    private String phone;
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Enter a valid email address.")
+    private String email;
 
-    public String getPhone() {
-        return phone;
+    @NotBlank(message = "Password is required.")
+    @Size(max = 72, message = "Password must be at most 72 characters.")
+    private String password;
+
+    public String getEmail() {
+        return email;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

@@ -3,9 +3,11 @@ import { Button } from "./ui.jsx";
 import { authService } from "../services/authService.js";
 import { ApiError } from "../services/api.js";
 
-/* Six-box SMS-code entry. Props: phone, purpose ("REGISTER"|"LOGIN"),
-   expiresInSeconds, onVerified(session). Handles paste, backspace nav,
-   resend with cooldown, and maps 401 (wrong) / 410 (dead → resend) / 400. */
+/* Six-box email-code entry. Props: email, purpose ("REGISTER"|"LOGIN"),
+   expiresInSeconds (600 = 10 min), onVerified(session). Handles paste,
+   backspace nav, resend with a 60s cooldown, and maps 401 (wrong) /
+   410 (dead → resend) / 429 (cooldown) / 400. The code is never stored —
+   only typed and submitted. */
 
 function formatCountdown(total) {
   const m = Math.floor(total / 60);
@@ -13,12 +15,19 @@ function formatCountdown(total) {
   return `${m}:${s}`;
 }
 
-export function OtpStep({ phone, purpose, expiresInSeconds, onVerified, onBack }) {
+/* j***@gmail.com — confirms the destination without exposing it. */
+export function maskEmail(email) {
+  const [local, domain] = String(email ?? "").split("@");
+  if (!domain) return email ?? "";
+  return `${(local ?? "").slice(0, 1)}***@${domain}`;
+}
+
+export function OtpStep({ email, purpose, expiresInSeconds, onVerified, onBack }) {
   const [boxes, setBoxes] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState(null);
   const [pending, setPending] = useState(false);
-  const [remaining, setRemaining] = useState(expiresInSeconds ?? 120);
-  const [cooldown, setCooldown] = useState(30);
+  const [remaining, setRemaining] = useState(expiresInSeconds ?? 600);
+  const [cooldown, setCooldown] = useState(60);
   const inputs = useRef([]);
 
   useEffect(() => {
@@ -72,14 +81,14 @@ export function OtpStep({ phone, purpose, expiresInSeconds, onVerified, onBack }
     setPending(true);
     setError(null);
     try {
-      const session = await authService.verifyOtp({ phone, code, purpose });
+      const session = await authService.verifyOtp({ email, code, purpose });
       onVerified({
         token: session.token, id: session.id,
-        name: session.name, phone: session.phone, role: session.role,
+        name: session.name, email: session.email, role: session.role,
       });
     } catch (err) {
       if (err instanceof ApiError && err.status === 410) {
-        setError("That code expired. Request a new one below.");
+        setError("That code expired or was used up. Request a new one below.");
       } else {
         setError(err instanceof ApiError ? err.message : "Verification failed. Please retry.");
       }
@@ -92,13 +101,18 @@ export function OtpStep({ phone, purpose, expiresInSeconds, onVerified, onBack }
     setPending(true);
     setError(null);
     try {
-      const challenge = await authService.resendOtp({ phone, purpose });
+      const challenge = await authService.resendOtp({ email, purpose });
       setBoxes(["", "", "", "", "", ""]);
-      setRemaining(challenge.expiresInSeconds ?? 120);
-      setCooldown(30);
+      setRemaining(challenge.expiresInSeconds ?? 600);
+      setCooldown(60);
       inputs.current[0]?.focus();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Resend failed. Please retry.");
+      if (err instanceof ApiError && err.status === 429) {
+        setError("A code was just sent. Wait a minute before requesting another.");
+        setCooldown(60);
+      } else {
+        setError(err instanceof ApiError ? err.message : "Resend failed. Please retry.");
+      }
     } finally {
       setPending(false);
     }
@@ -106,7 +120,7 @@ export function OtpStep({ phone, purpose, expiresInSeconds, onVerified, onBack }
 
   return (
     <form onSubmit={submit} noValidate>
-      <p>We texted a 6-digit code to <strong>{phone}</strong>. Enter it below to continue.</p>
+      <p>We sent a 6-digit verification code to <strong>{maskEmail(email)}</strong>. Enter it below to continue.</p>
       <div className="otp-wrap">
         <div className="otp-boxes" onPaste={onPaste} role="group" aria-label="6-digit verification code">
           {boxes.map((v, i) => (
@@ -130,7 +144,7 @@ export function OtpStep({ phone, purpose, expiresInSeconds, onVerified, onBack }
         </button>
       </div>
       {error && <p className="error" role="alert">{error}</p>}
-      <Button type="submit" disabled={pending}>{pending ? "Verifying…" : "Verify & continue"}</Button>
+      <Button type="submit" disabled={pending}>{pending ? "Verifying…" : "Verify email"}</Button>
       {" "}
       {onBack && <Button variant="secondary" onClick={onBack}>Back</Button>}
     </form>

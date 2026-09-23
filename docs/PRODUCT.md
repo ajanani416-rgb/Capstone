@@ -19,7 +19,7 @@ REQUIREMENT (Problem_Statement.md §10):
 - Poor customer experience
 
 ## 4. User goals
-- Customer: book without calling, prove phone ownership via SMS OTP, see queue number, know status/wait.
+- Customer: book without calling, prove email ownership via SMTP OTP, see queue number, know status/wait.
 - Admin: see day's appointments, control queue order, update status, keep service/barber catalog correct.
 
 ## 5. Product goals
@@ -28,7 +28,7 @@ REQUIREMENT (Problem_Statement.md §10):
 - Understandable, defensible capstone MVP.
 
 ## 6. MVP scope (REQUIREMENT, Problem_Statement.md §7–§8)
-1. Customer registration + SMS-OTP verification + login + OTP
+1. Customer registration (email+password) + email-OTP verification + password login
 2. Browse services + view barbers
 3. Book appointment (service + barber + date + time) → queue number assigned
 4. Customer: view own appointments, track status + live wait
@@ -46,7 +46,7 @@ Chat, AI chatbot, recommendations, mobile app, microservices, advanced analytics
 - Double-booking = same barber + date + time → 409 + DB unique backstop (D2, TASK-005).
 - Status set QUEUED/IN_SERVICE/COMPLETED/CANCELLED; new bookings start QUEUED; strict forward-only transitions (D3, TASK-005/006).
 - Wait = sum of service durations ahead on your barber's line, computed on read (D5-remainder, TASK-007). Order immutable, no manual reorder.
-- No JWT without verified SMS OTP on both register and login.
+- No JWT for unverified accounts; email OTP on register, password login after.
 
 ## 10. Constraints
 - Stack locked: Java 17, Spring Boot 3.2, Spring Web/Data JPA/Security, MySQL, React+Vite+React Router (Problem_Statement.md §11, backend/pom.xml verified).

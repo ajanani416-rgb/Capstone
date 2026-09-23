@@ -17,6 +17,7 @@ import com.salon.management.entity.OtpPurpose;
 import com.salon.management.entity.Role;
 import com.salon.management.entity.Service;
 import com.salon.management.entity.User;
+import com.salon.management.mail.EmailSender;
 import com.salon.management.repository.BarberRepository;
 import com.salon.management.repository.ServiceRepository;
 import com.salon.management.repository.UserRepository;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -58,6 +60,9 @@ class AdminApiTest {
     @Autowired
     private OtpService otpService;
 
+    @MockBean
+    private EmailSender emailSender;
+
     private Service service;
     private Barber barber;
 
@@ -68,24 +73,24 @@ class AdminApiTest {
         barber = barbers.save(new Barber("Barber-" + UUID.randomUUID(), null, true));
     }
 
-    private static final AtomicLong PHONE_SEQ = new AtomicLong(9195000000L);
+    private static final AtomicLong EMAIL_SEQ = new AtomicLong();
 
-    private static String phone() {
-        return "+" + PHONE_SEQ.getAndIncrement();
+    private static String email() {
+        return "admin" + EMAIL_SEQ.getAndIncrement() + "@example.com";
     }
 
     private String customerToken() throws Exception {
-        String number = phone();
+        String address = email();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Cust", "phone", number))))
+                                "name", "Cust", "email", address, "password", "Password123"))))
                 .andExpect(status().isCreated());
         MvcResult r = mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "phone", number,
-                                "code", otpService.lastIssuedCode(number, OtpPurpose.REGISTER),
+                                "email", address,
+                                "code", otpService.lastIssuedCode(address, OtpPurpose.REGISTER),
                                 "purpose", "REGISTER"))))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -93,7 +98,7 @@ class AdminApiTest {
     }
 
     private String adminToken() {
-        User admin = users.save(new User("Admin", phone(), Role.ADMIN));
+        User admin = users.save(new User("Admin", email(), "test-hash", Role.ADMIN));
         return jwtService.generateToken(admin.getId(), "ADMIN");
     }
 
@@ -267,16 +272,17 @@ class AdminApiTest {
     @Test
     void usersListHasNoSecrets() throws Exception {
         String cust = customerToken();
-        String number = phone();
+        String address = email();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Listed", "phone", number))))
+                                "name", "Listed", "email", address,
+                                "password", "Password123"))))
                 .andExpect(status().isCreated());
 
         mvc.perform(get("/api/users").header("Authorization", "Bearer " + adminToken()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[?(@.phone=='" + number + "')]", hasSize(1)))
+                .andExpect(jsonPath("$[?(@.email=='" + address + "')]", hasSize(1)))
                 .andExpect(jsonPath("$[*].passwordHash").doesNotExist())
                 .andExpect(jsonPath("$[*].password").doesNotExist());
         mvc.perform(get("/api/users").header("Authorization", "Bearer " + cust))

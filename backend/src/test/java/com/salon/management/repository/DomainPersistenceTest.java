@@ -41,14 +41,14 @@ class DomainPersistenceTest {
     @Autowired
     private AppointmentRepository appointments;
 
-    private static final AtomicLong PHONE_SEQ = new AtomicLong(9196000000L);
+    private static final AtomicLong EMAIL_SEQ = new AtomicLong();
 
-    private static String phone() {
-        return "+" + PHONE_SEQ.getAndIncrement();
+    private static String email() {
+        return "persist" + EMAIL_SEQ.getAndIncrement() + "@example.com";
     }
 
     private User customer() {
-        return new User("Asha", phone(), Role.CUSTOMER);
+        return new User("Asha", email(), "test-hash", Role.CUSTOMER);
     }
 
     private Service haircut() {
@@ -82,12 +82,12 @@ class DomainPersistenceTest {
     }
 
     @Test
-    void phoneIsUnique() {
-        String number = phone();
-        users.saveAndFlush(new User("One", number, Role.CUSTOMER));
+    void emailIsUnique() {
+        String address = email();
+        users.saveAndFlush(new User("One", address, "test-hash", Role.CUSTOMER));
 
         assertThatThrownBy(() -> users.saveAndFlush(
-                new User("Two", number, Role.CUSTOMER)))
+                new User("Two", address, "test-hash", Role.CUSTOMER)))
                 .isInstanceOf(Exception.class);
     }
 

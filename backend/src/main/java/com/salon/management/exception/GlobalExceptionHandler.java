@@ -37,8 +37,8 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("Validation failed. Review the highlighted fields.", fields));
     }
 
-    @ExceptionHandler(DuplicatePhoneException.class)
-    public ResponseEntity<ErrorResponse> duplicate(DuplicatePhoneException ex) {
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponse> duplicate(DuplicateEmailException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(ex.getMessage()));
     }
 
@@ -47,10 +47,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ex.getMessage()));
     }
 
-    @ExceptionHandler(UnverifiedPhoneException.class)
-    public ResponseEntity<ErrorResponse> unverified(UnverifiedPhoneException ex) {
-        // 403 (not 401): the number exists, only the OTP step remains.
+    @ExceptionHandler(UnverifiedEmailException.class)
+    public ResponseEntity<ErrorResponse> unverified(UnverifiedEmailException ex) {
+        // 403 (not 401): the account exists, only the OTP step remains.
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(EmailSendFailedException.class)
+    public ResponseEntity<ErrorResponse> emailSendFailed(EmailSendFailedException ex) {
+        // 502: our upstream (SMTP) failed, not the client's request.
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(OtpResendCooldownException.class)
+    public ResponseEntity<ErrorResponse> resendCooldown(OtpResendCooldownException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(new ErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler(InvalidOtpException.class)

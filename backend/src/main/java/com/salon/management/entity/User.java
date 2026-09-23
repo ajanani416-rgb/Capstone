@@ -9,17 +9,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
  * Customer or admin account. Maps docs/database-schema.md users table (+V4
- * verified flag, +V6 phone identity, +V7 passwordless). Phone is the login
- * identity and the SMS OTP channel; there are no passwords — every session
- * begins with a verified OTP challenge.
+ * verified flag, +V6 phone identity, +V7 passwordless, +V9 email identity).
+ * Email is the login identity, BCrypt password_hash the credential, and
+ * email_verified gates every session — registration creates unverified rows
+ * that cannot log in until the email OTP is confirmed.
  */
 @Entity
 @Table(name = "users")
@@ -34,22 +35,31 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @NotBlank
-    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Enter a valid phone number.")
-    @Size(max = 20)
-    @Column(nullable = false, unique = true, length = 20)
-    private String phone;
+    /** Login identity. Nullable at the schema level only so pre-V9 phone-only
+     * demo rows survive the migration (they cannot authenticate until they
+     * re-register with an email); every password-era row has one. */
+    @Email
+    @Size(max = 255)
+    @Column(unique = true, length = 255)
+    private String email;
+
+    /** BCrypt hash — never plaintext, never returned by any API, never
+     * logged. Pre-V9 rows carry an empty marker that matches nothing. */
+    @NotNull
+    @Size(max = 255)
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private Role role;
 
-    /** Phone ownership proven via SMS OTP. Public registration creates
-     * unverified rows that cannot log in until verified (TASK-009). */
+    /** Email ownership proven via email OTP. Public registration creates
+     * unverified rows that cannot log in until verified. */
     @NotNull
-    @Column(nullable = false)
-    private Boolean verified = false;
+    @Column(name = "email_verified", nullable = false)
+    private Boolean emailVerified = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -57,9 +67,10 @@ public class User {
     protected User() {
     }
 
-    public User(String name, String phone, Role role) {
+    public User(String name, String email, String passwordHash, Role role) {
         this.name = name;
-        this.phone = phone;
+        this.email = email;
+        this.passwordHash = passwordHash;
         this.role = role;
     }
 
@@ -82,12 +93,20 @@ public class User {
         this.name = name;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getEmail() {
+        return email;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public Role getRole() {
@@ -98,12 +117,12 @@ public class User {
         this.role = role;
     }
 
-    public Boolean getVerified() {
-        return verified;
+    public Boolean getEmailVerified() {
+        return emailVerified;
     }
 
-    public void setVerified(Boolean verified) {
-        this.verified = verified;
+    public void setEmailVerified(Boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 
     public LocalDateTime getCreatedAt() {

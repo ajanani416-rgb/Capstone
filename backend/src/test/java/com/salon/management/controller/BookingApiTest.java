@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.salon.management.entity.Barber;
 import com.salon.management.entity.OtpPurpose;
 import com.salon.management.entity.Service;
+import com.salon.management.mail.EmailSender;
 import com.salon.management.repository.BarberRepository;
 import com.salon.management.repository.ServiceRepository;
 import com.salon.management.service.OtpService;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -45,6 +47,9 @@ class BookingApiTest {
     @Autowired
     private OtpService otpService;
 
+    @MockBean
+    private EmailSender emailSender;
+
     @Autowired
     private ServiceRepository services;
 
@@ -61,24 +66,25 @@ class BookingApiTest {
         barber = barbers.save(new Barber("Barber-" + UUID.randomUUID(), null, true));
     }
 
-    private static final AtomicLong PHONE_SEQ = new AtomicLong(9193000000L);
+    private static final AtomicLong EMAIL_SEQ = new AtomicLong();
 
-    private static String phone() {
-        return "+" + PHONE_SEQ.getAndIncrement();
+    private static String email() {
+        return "book" + EMAIL_SEQ.getAndIncrement() + "@example.com";
     }
 
     private String token() throws Exception {
-        String number = phone();
+        String address = email();
         mvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "name", "Booker", "phone", number))))
+                                "name", "Booker", "email", address,
+                                "password", "Password123"))))
                 .andExpect(status().isCreated());
         MvcResult result = mvc.perform(post("/api/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "phone", number,
-                                "code", otpService.lastIssuedCode(number, OtpPurpose.REGISTER),
+                                "email", address,
+                                "code", otpService.lastIssuedCode(address, OtpPurpose.REGISTER),
                                 "purpose", "REGISTER"))))
                 .andExpect(status().isOk())
                 .andReturn();

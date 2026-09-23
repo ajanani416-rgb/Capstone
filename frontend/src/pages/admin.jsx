@@ -359,10 +359,10 @@ export function AdminCustomers() {
       {phase === "success" && (
         <div className="table-wrap">
           <table className="data">
-            <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Role</th><th>Since</th></tr></thead>
+            <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Since</th></tr></thead>
             <tbody>
               {data.map((u) => (
-                <tr key={u.id}><td>{u.id}</td><td>{u.name}</td><td>{u.phone}</td>
+                <tr key={u.id}><td>{u.id}</td><td>{u.name}</td><td>{u.email}</td>
                   <td>{u.role}</td><td>{u.createdAt?.slice(0, 10) ?? "—"}</td></tr>
               ))}
             </tbody>

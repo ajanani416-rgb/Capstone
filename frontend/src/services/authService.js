@@ -1,9 +1,10 @@
 import { request } from "./api.js";
 
-// Phone-OTP auth. Neither register nor login returns a session:
-// both return a challenge { phone, purpose, expiresInSeconds }. The JWT
-// arrives only from verifyOtp. Login with an unverified number answers 403
-// (and issues a REGISTER code) — callers branch on status alone.
+// Email + password auth with email-OTP verification. Register returns a
+// challenge { email, purpose, expiresInSeconds } (no session); login with a
+// verified account returns the JWT directly, and with an unverified one
+// answers 403 (issuing a fresh REGISTER code) — callers branch on status.
+// The JWT arrives from login or verifyOtp.
 export const authService = {
   register: (input) => request("/api/auth/register", { method: "POST", body: input }),
   login: (input) => request("/api/auth/login", { method: "POST", body: input }),

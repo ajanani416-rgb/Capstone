@@ -9,15 +9,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
- * One pending SMS OTP. Only the SHA-256 hash is stored — a database leak
- * never reveals usable codes. At most one unused code per (phone, purpose);
+ * One pending email OTP. Only the SHA-256 hash is stored — a database leak
+ * never reveals usable codes. At most one unused code per (email, purpose);
  * issuing a new one invalidates the old. Max 5 verification attempts, then
  * the code dies and the client must resend.
  */
@@ -32,10 +32,10 @@ public class OtpCode {
     private Long id;
 
     @NotBlank
-    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Enter a valid phone number.")
-    @Size(max = 20)
-    @Column(nullable = false, length = 20)
-    private String phone;
+    @Email
+    @Size(max = 255)
+    @Column(nullable = false, length = 255)
+    private String email;
 
     @NotBlank
     @Size(max = 64)
@@ -63,8 +63,8 @@ public class OtpCode {
     protected OtpCode() {
     }
 
-    public OtpCode(String phone, String codeHash, OtpPurpose purpose, LocalDateTime expiresAt) {
-        this.phone = phone;
+    public OtpCode(String email, String codeHash, OtpPurpose purpose, LocalDateTime expiresAt) {
+        this.email = email;
         this.codeHash = codeHash;
         this.purpose = purpose;
         this.expiresAt = expiresAt;
@@ -85,8 +85,8 @@ public class OtpCode {
         return id;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getEmail() {
+        return email;
     }
 
     public String getCodeHash() {
@@ -119,5 +119,9 @@ public class OtpCode {
 
     public void setUsed(boolean used) {
         this.used = used;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

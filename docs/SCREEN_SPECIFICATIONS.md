@@ -6,7 +6,7 @@ Route map mirrors the React Router tree. Auth column = backend enforcement (fron
 Order per brief: appointment-story hero (Login/Register top-right in navbar) → live services preview (real catalog) → role tracks (client books / admin approves from schedule) → approval flow strip → CTA band → footer. Empty catalog hides the preview section. Responsive: hero stacks ≤768px.
 
 ## S-02 Register `/register`, S-03 Login `/login` (public)
-Register: name/phone with inline validation → 201 challenge → OTP step (6 boxes, countdown, resend) → verify → auto-login → role landing. Login: phone → challenge → OTP step → session; 403 unverified jumps to REGISTER OTP. 409 phone-taken; 401 unknown number; input preserved on failure; submit disabled while pending.
+Register: name/email/password/confirm with inline validation → 201 challenge → verification screen (masked address, 6 boxes, 10-min countdown, 60s resend) → verify → auto-login → role landing. Login: email+password → session; 403 unverified jumps to REGISTER verification. 409 email-taken; 401 wrong password/unknown email (generic); input preserved on failure; submit disabled while pending. No password-reset flow (out of scope by design).
 
 ## S-04 Customer Dashboard `/customer` (CUSTOMER)
 Next appointment + queue position + quick actions. States: loading / has-appointment / none ("No appointments yet — Book your first") / error+retry.

@@ -30,7 +30,10 @@ V4 (verified + otp_codes, grandfathered), OtpService (SHA-256, 10-min, 5 tries, 
 ## TASK-010 SMS-OTP identity (phone replaces email) — DONE
 Operator decision: Gmail OTP removed entirely (mail package + starter-mail deleted), phone is the login identity and SMS OTP channel. V6 (users.email→phone incl. admin backfill `+910000000001`, otp_codes.email→phone with V4-index drop first — H2 refuses referenced-column drops), entities/DTOs/repos/services/exceptions renamed to phone, console SMS sender (log-only, gateway later via `app.sms.gateway`), frontend auth pages + OtpStep + customers table to phone, all docs updated. 37/37 green.
 
-## TASK-011 Passwordless auth (phone + SMS OTP only) — DONE
+## TASK-011 Passwordless auth (phone + SMS OTP only) — DONE (superseded by TASK-012)
 Operator decision: passwords removed entirely. V7 drops `users.password_hash`; User/DTOs lose password fields; AuthService login is number-lookup + challenge (no password check); PasswordEncoder bean deleted; frontend register is name+phone, login is phone-only ("Text me a code"); all tests + docs updated. 37/37 green.
+
+## TASK-012 Email OTP + SMTP authentication — DONE
+Operator decision: phone/SMS removed entirely (sms package deleted), email is the identity, password the credential, email OTP the verification. starter-mail added; `EmailSender` + `SmtpEmailSender` (Gmail STARTTLS, HTML+text, fixed subject) + `MailConfig` (env creds); BCrypt `PasswordEncoder` restored; User gains email (nullable UNIQUE — pre-V9 phone-only demo rows survive but must re-register)/password_hash/email_verified, OtpCode keyed by email; V9 migrates (verified→email_verified carried, admin backfilled ajanani416@gmail.com + V2 hash + verified, phone columns dropped); OtpService TTL 10 min + 60s server resend cooldown (429) + SHA-256 + SecureRandom kept; login returns JWT for verified accounts, 403+fresh-code for unverified; SMTP failure → 502 with rollback; frontend email/password + verification screen (masked address, 600s countdown, 60s resend); tests mock EmailSender (40/40 green, incl. cooldown-429 + SMTP-502).
 
 ## DECISION_REQUIRED — none open (D1–D6 all resolved)

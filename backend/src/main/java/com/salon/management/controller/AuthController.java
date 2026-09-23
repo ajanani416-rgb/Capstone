@@ -22,9 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Public: POST register (→ OTP challenge), POST login (lookup → OTP
- * challenge, or 403 unverified with a fresh code), POST verify-otp
- * (code → JWT session), POST otp/resend. Authenticated: GET me.
+ * Public: POST register (creates unverified user → emailed OTP challenge),
+ * POST login (email+password → JWT, or 403 unverified with a fresh code),
+ * POST verify-otp (code → JWT session), POST otp/resend (fresh code, 60s
+ * cooldown). Authenticated: GET me.
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -45,7 +46,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<OtpChallengeResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 

@@ -1,6 +1,6 @@
 /* Bearer-token storage shared by AuthContext (writes) and api.js (reads).
    Splitting it out avoids a context↔service import cycle. Stored shape:
-   { token, id, name, phone, role }. */
+   { token, id, name, email, role }. Passwords are never stored. */
 
 const KEY = "salon.auth.session";
 

@@ -1,17 +1,21 @@
 package com.salon.management.dto;
 
 import com.salon.management.entity.OtpPurpose;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-/** POST /api/auth/verify-otp body. REGISTER completes a new account (and
- * returns a session); LOGIN finishes a number-lookup login (returns JWT). */
+/** POST /api/auth/verify-otp body. REGISTER completes a new account (marks
+ * the email verified and returns a session); LOGIN is unused — verified
+ * users authenticate with email+password directly. */
 public class VerifyOtpRequest {
 
-    @NotBlank(message = "Phone number is required.")
-    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "Enter a valid phone number.")
-    private String phone;
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Enter a valid email address.")
+    @Size(max = 255)
+    private String email;
 
     @NotBlank(message = "Code is required.")
     @Pattern(regexp = "\\d{6}", message = "Code must be 6 digits.")
@@ -20,12 +24,12 @@ public class VerifyOtpRequest {
     @NotNull(message = "Purpose is required.")
     private OtpPurpose purpose;
 
-    public String getPhone() {
-        return phone;
+    public String getEmail() {
+        return email;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getCode() {
