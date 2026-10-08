@@ -19,7 +19,8 @@ public class MailConfig {
             @Value("${app.mail.host:smtp.gmail.com}") String host,
             @Value("${app.mail.port:587}") int port,
             @Value("${app.mail.username:}") String username,
-            @Value("${app.mail.password:}") String password) {
+            @Value("${app.mail.password:}") String password,
+            @Value("${app.mail.localhost:localhost}") String localhost) {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
         sender.setHost(host);
         sender.setPort(port);
@@ -29,6 +30,10 @@ public class MailConfig {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
+        // EHLO hostname: never let JavaMail default to the machine's raw
+        // address (macOS can yield a link-local IPv6 + zone ID, which Gmail
+        // rejects with 501 5.5.4). Overridable via APP_MAIL_LOCALHOST.
+        props.put("mail.smtp.localhost", localhost);
         return sender;
     }
 }
