@@ -91,6 +91,18 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <!-- Repackage into an executable fat jar so the
+                                 Render start command (java -jar target/*.jar)
+                                 works; without this Maven builds a thin jar
+                                 with no Main-Class. -->
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
