@@ -1,0 +1,240 @@
+/* DESIGN_TOKENS.css — single visual source of truth (mirrors docs/DESIGN_TOKENS.md).
+   Page-specific hex is forbidden; every component below consumes these vars.
+   Direction (TASK-009 refresh): Dribbble 25812917 hierarchy (dark sidebar +
+   light canvas + summary cards + central table + status rail), inspo
+   ochre/charcoal consensus, ui-ux-pro dashboard checklist (stat cards,
+   micro-hover, footer). Accent deepened for 4.5:1 contrast on white. */
+
+:root {
+  --bg-canvas: #f6f5f1;
+  --bg-surface: #ffffff;
+  --bg-sidebar: #16161a;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --text-primary: #1a1a1e;
+  --text-secondary: #5f6570;
+  --text-on-dark: #f5f4ef;
+  --text-on-dark-dim: #b9b4a8;
+  --accent: #9a6206;
+  --accent-strong: #7a4c05;
+  --accent-soft: #f5e7c6;
+  --success: #1e7e34;
+  --success-soft: #e3f2e7;
+  --warning: #9a6700;
+  --warning-soft: #faf0d7;
+  --danger: #b3261e;
+  --danger-soft: #fbe9e7;
+  --info: #1d4ed8;
+  --info-soft: #e5edfd;
+  --border: #e4e1d8;
+  --radius-card: 16px;
+  --radius-input: 10px;
+  --radius-chip: 999px;
+  --shadow-card: 0 1px 2px rgba(16, 16, 26, 0.06), 0 8px 24px -12px rgba(16, 16, 26, 0.18);
+  --shadow-lift: 0 2px 4px rgba(16, 16, 26, 0.08), 0 16px 32px -12px rgba(16, 16, 26, 0.25);
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ---------- app frame: sidebar / table / status rail (Dribbble hierarchy) ---------- */
+.shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 248px; flex-shrink: 0;
+  background: var(--bg-sidebar); color: var(--text-on-dark);
+  padding: 24px 16px; display: flex; flex-direction: column; gap: 4px;
+}
+.sidebar .brand { font-weight: 700; font-size: 18px; padding: 0 12px 4px; display: flex; align-items: center; gap: 10px; }
+.sidebar .brand-mark {
+  width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+  background: var(--accent); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 16px;
+}
+.sidebar .nav-label {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-on-dark-dim); padding: 16px 12px 4px;
+}
+.sidebar a {
+  color: var(--text-on-dark); text-decoration: none;
+  padding: 10px 12px; border-radius: var(--radius-input);
+  display: block; min-height: 44px; border-left: 3px solid transparent;
+  transition: background 150ms ease;
+}
+.sidebar a:hover { background: var(--bg-sidebar-hover); }
+.sidebar a.active { background: var(--bg-sidebar-hover); border-left-color: var(--accent); font-weight: 600; }
+.sidebar .session { margin-top: auto; padding: 16px 12px 0; border-top: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-on-dark-dim); font-size: 14px; }
+.sidebar .session button {
+  margin-top: 8px; width: 100%; background: transparent; color: var(--text-on-dark);
+  border: 1px solid rgba(255, 255, 255, 0.25); border-radius: var(--radius-input);
+  padding: 8px; min-height: 44px; font: inherit; cursor: pointer;
+}
+.sidebar .session button:hover { background: var(--bg-sidebar-hover); }
+.sidebar a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.main { flex: 1; padding: 32px; max-width: 1280px; }
+.topbar { display: none; }
+
+/* ---------- primitives ---------- */
+.card {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-card);
+  padding: 20px 24px;
+}
+.grid { display: grid; gap: 24px; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.btn {
+  font: inherit; font-weight: 600; cursor: pointer;
+  border-radius: var(--radius-input); padding: 10px 20px;
+  min-height: 44px; border: 1px solid transparent;
+}
+.btn-primary { background: var(--bg-sidebar); color: var(--text-on-dark); }
+.btn-primary:disabled { opacity: 0.6; cursor: wait; }
+.btn-secondary { background: transparent; color: var(--text-primary); border-color: var(--border); }
+.btn-danger-ghost { background: transparent; color: var(--danger); border-color: var(--danger); }
+/* Subtle micro-interaction (ui-ux-pro checklist); motion-safe only, see bottom. */
+.btn { transition: transform 150ms ease, box-shadow 150ms ease; }
+.btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: var(--shadow-lift); }
+.btn:not(:disabled):active { transform: translateY(0); box-shadow: none; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.field label { font-weight: 600; font-size: 14px; }
+.field .required::after { content: " *"; color: var(--danger); }
+.field input, .field select {
+  font: inherit; padding: 10px 12px; min-height: 44px;
+  border: 1px solid var(--border); border-radius: var(--radius-input);
+  background: #fff;
+}
+.field .hint { font-size: 12px; color: var(--text-secondary); }
+.field .error { font-size: 14px; color: var(--danger); }
+.table-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; background: var(--bg-surface); }
+table.data th, table.data td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+table.data thead th { position: sticky; top: 0; background: var(--bg-surface); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); }
+table.data tbody tr:hover { background: #faf9f6; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  border-radius: var(--radius-chip); padding: 4px 12px;
+  font-size: 14px; font-weight: 600; white-space: nowrap;
+}
+.badge-queued { background: var(--info-soft); color: var(--info); }
+.badge-in-service { background: var(--warning-soft); color: var(--warning); }
+.badge-completed { background: var(--success-soft); color: var(--success); }
+.badge-cancelled { background: var(--danger-soft); color: var(--danger); }
+.state { padding: 32px 16px; text-align: center; color: var(--text-secondary); }
+.state h2 { color: var(--text-primary); }
+.skeleton { background: linear-gradient(90deg, #eee 25%, #f7f7f7 50%, #eee 75%); border-radius: 8px; min-height: 20px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(16, 16, 26, 0.5); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.modal { background: var(--bg-surface); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 24px; width: 100%; max-width: 520px; }
+.navbar { display: flex; gap: 16px; align-items: center; padding: 16px 32px; background: var(--bg-surface); border-bottom: 1px solid var(--border); }
+.navbar a { color: var(--text-primary); text-decoration: none; font-weight: 600; }
+.navbar .spacer { flex: 1; }
+
+/* ---------- stat cards (dashboard summary strip, Dribbble rail pattern) ---------- */
+.stat { display: flex; flex-direction: column; gap: 4px; }
+.stat-top { display: flex; align-items: center; gap: 10px; }
+.stat-ico {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700;
+}
+.stat-ico.amber { background: var(--accent-soft); color: var(--accent-strong); }
+.stat-ico.blue { background: var(--info-soft); color: var(--info); }
+.stat-ico.green { background: var(--success-soft); color: var(--success); }
+.stat-label { font-size: 14px; color: var(--text-secondary); font-weight: 600; }
+.stat-value { font-size: 32px; line-height: 1.2; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-link { font-size: 14px; font-weight: 600; color: var(--accent-strong); }
+
+/* ---------- OTP code entry (6-digit SMS verification) ---------- */
+.otp-wrap { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.otp-boxes { display: flex; gap: 8px; }
+.otp-boxes input {
+  width: 48px; height: 56px; text-align: center;
+  font-family: var(--font-mono); font-size: 24px; font-weight: 600;
+  border: 1px solid var(--border); border-radius: var(--radius-input); background: #fff;
+}
+.otp-boxes input:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.otp-meta { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--text-secondary); }
+.otp-meta button { background: none; border: none; padding: 8px; min-height: 44px; font: inherit; font-weight: 600; color: var(--accent-strong); cursor: pointer; }
+.otp-meta button:disabled { opacity: 0.5; cursor: wait; }
+
+/* ---------- public footer (ui-ux-pro dashboard checklist) ---------- */.footer { background: var(--bg-sidebar); color: var(--text-on-dark-dim); padding: 32px; margin-top: 64px; }
+.footer-inner { max-width: 1280px; margin: 0 auto; display: flex; gap: 24px; flex-wrap: wrap; align-items: baseline; }
+.footer-brand { color: var(--text-on-dark); font-weight: 700; }
+.footer-inner .spacer { flex: 1; }
+.footer small { font-size: 12px; }
+
+/* ---------- intro landing (Hero + Features + CTA; inspo marquee-hero) ---------- */
+.eyebrow {
+  display: inline-block; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent-strong); margin-bottom: 16px;
+}
+.hero { padding: 48px 0 8px; max-width: 880px; }
+.hero-title {
+  margin: 0 0 16px; font-weight: 800;
+  font-size: clamp(40px, 6vw, 68px); line-height: 1.04; letter-spacing: -0.02em;
+}
+.hero-sub { font-size: 19px; line-height: 1.55; color: var(--text-secondary); margin: 0 0 28px; max-width: 640px; }
+.hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.landing-section { margin-top: clamp(72px, 9vw, 120px); }
+.landing-section h2 { font-size: clamp(24px, 3vw, 32px); margin: 0 0 8px; letter-spacing: -0.01em; }
+.section-sub { color: var(--text-secondary); margin: 0 0 24px; max-width: 640px; font-size: 17px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.role-card { display: flex; flex-direction: column; gap: 8px; }
+.role-card h3 { margin: 0; font-size: 20px; }
+.role-card ol { margin: 8px 0 16px; padding-left: 20px; color: var(--text-primary); display: grid; gap: 6px; }
+.role-card .btn { align-self: flex-start; }
+.flow { display: flex; flex-wrap: wrap; }
+.flow-step { flex: 1 1 200px; padding: 16px 20px 16px 0; }
+.flow-step + .flow-step { border-left: 1px solid var(--border); padding-left: 20px; }
+.flow-num {
+  display: inline-flex; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent-strong);
+  align-items: center; justify-content: center; font-weight: 800; margin-bottom: 8px;
+}
+.cta-band {
+  background: var(--bg-sidebar); color: var(--text-on-dark);
+  border-radius: 24px; padding: clamp(32px, 5vw, 56px);
+  text-align: center; box-shadow: var(--shadow-card);
+}
+.cta-band h2 { margin: 0 0 8px; color: var(--text-on-dark); }
+.cta-band p { color: var(--text-on-dark-dim); margin: 0 0 24px; }
+.cta-band .btn-primary { background: var(--accent); }
+@media (max-width: 768px) {
+  .split { grid-template-columns: 1fr; }
+  .flow-step + .flow-step { border-left: none; padding-left: 0; }
+}
+
+/* ---------- motion safety ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .btn, .sidebar a { transition: none; }
+  .btn:not(:disabled):hover { transform: none; box-shadow: none; }
+}
+
+/* ---------- responsive: sidebar collapses, tables become cards ---------- */
+@media (max-width: 1024px) {
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .shell { flex-direction: column; }
+  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 12px 16px; }
+  .sidebar .brand { padding: 0 12px 0 0; }
+  .sidebar nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .main { padding: 16px; }
+  .grid-3 { grid-template-columns: 1fr; }
+  table.data thead { display: none; }
+  table.data, table.data tbody, table.data tr, table.data td { display: block; width: 100%; }
+  table.data tr { border: 1px solid var(--border); border-radius: var(--radius-card); margin-bottom: 12px; background: var(--bg-surface); }
+  table.data td { border-bottom: none; }
+}

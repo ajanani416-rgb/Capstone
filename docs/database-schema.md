@@ -17,14 +17,20 @@
   - Data type: VARCHAR(255)
   - Primary key: No
   - Foreign key: No
-  - Nullable: No
-  - Description: User email address
+  - Nullable: Yes (pre-V9 phone-only rows; every password-era row has one; login requires it)
+  - Description: User email (login identity + OTP channel, unique)
 - Column: password_hash
   - Data type: VARCHAR(255)
   - Primary key: No
   - Foreign key: No
   - Nullable: No
-  - Description: Hashed password
+  - Description: BCrypt password hash (never plaintext; pre-V9 rows carry an empty non-matching marker)
+- Column: email_verified
+  - Data type: BOOLEAN
+  - Primary key: No
+  - Foreign key: No
+  - Nullable: No
+  - Description: Email ownership proven via OTP (gates every session)
 - Column: role
   - Data type: VARCHAR(50)
   - Primary key: No

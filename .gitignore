@@ -6,5 +6,9 @@ node_modules/
 target/
 dist/
 
+# Generated single-host UI bundle (rebuild: VITE_API_URL= npm run build in
+# frontend/, copy dist/* to backend/src/main/resources/static/)
+backend/src/main/resources/static/
+
 # IDE
 .idea/
