@@ -74,8 +74,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Dev origin for `npm run dev`; override via reverse proxy in production.
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        String origins = System.getenv()
+                .getOrDefault("CORS_ALLOWED_ORIGINS", "http://localhost:5173");
+        config.setAllowedOrigins(List.of(origins.split(",")));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
