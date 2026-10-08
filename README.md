@@ -1,6 +1,6 @@
 # Smart Salon Appointment and Queue Management System
 
-A college Full Stack capstone MVP: customers register with email + password, verify their email via SMTP OTP, browse services/barbers, book appointments, receive per-day queue numbers, and track live wait estimates; admins manage appointments, the day queue, status lifecycle, catalog, and a read-only customer directory. JWT(+email-OTP)-secured Spring Boot REST API + React/Vite frontend + PostgreSQL/Flyway. All 13 Problem_Statement functional requirements implemented; 42 backend tests green.
+A college Full Stack capstone MVP: customers register with email + password, verify their email via SMTP OTP, browse services/barbers, book appointments, receive per-day queue numbers, and track live wait estimates; admins manage appointments, the day queue, status lifecycle, catalog, and a read-only customer directory. JWT(+email-OTP)-secured Spring Boot REST API + React/Vite frontend + PostgreSQL/Flyway. All 13 Problem_Statement functional requirements implemented; 47 backend tests green (42 unit/contract + 5 PG-gated integration).
 
 ## Features
 - Customer: register (email+password) + email OTP verification, password login, browse services & barbers, book (exact-slot conflict → friendly 409), own appointments, live queue wait on detail + today view
