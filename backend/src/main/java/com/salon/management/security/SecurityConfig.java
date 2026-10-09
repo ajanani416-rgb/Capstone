@@ -5,6 +5,7 @@ import com.salon.management.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -76,7 +77,10 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         String origins = System.getenv()
                 .getOrDefault("CORS_ALLOWED_ORIGINS", "http://localhost:5173");
-        config.setAllowedOrigins(List.of(origins.split(",")));
+        config.setAllowedOrigins(Arrays.stream(origins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

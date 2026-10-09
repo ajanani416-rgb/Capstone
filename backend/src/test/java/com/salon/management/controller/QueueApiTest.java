@@ -22,6 +22,7 @@ import com.salon.management.security.JwtService;
 import com.salon.management.service.OtpService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -195,8 +196,14 @@ class QueueApiTest {
         String cust = customerToken();
         String admin = adminToken();
         String today = LocalDate.now().toString();
-        // Same-day future slot: use a late hour to stay bookable at any test time.
-        book(cust, svc30.getId(), barber.getId(), today, "23:00");
+        // Same-day future slot: compute a time that is always in the future.
+        // (Hardcoded 23:00 was invalid after 23:00 — the production rule
+        // requires same-day bookings to be for future times.)
+        LocalTime slot = LocalTime.now().plusMinutes(30).withNano(0).withSecond(0);
+        if (!slot.isAfter(LocalTime.now())) {
+            slot = LocalTime.of(23, 59);
+        }
+        book(cust, svc30.getId(), barber.getId(), today, slot.toString());
 
         mvc.perform(get("/api/queue").header("Authorization", "Bearer " + admin))
                 .andExpect(status().isOk())
