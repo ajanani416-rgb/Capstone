@@ -48,6 +48,15 @@ PostgreSQL is used as the relational database. Flyway owns migrations (V1 schema
    - `npm run build`
    - `npm run dev`
 
+## Vercel deployment
+1. Import the repository in Vercel.
+2. Set **Root Directory** to `frontend`.
+3. Framework Preset: **Vite** (auto-detected).
+4. Build Command: `npm run build` · Output Directory: `dist`.
+5. Set environment variable `VITE_API_URL` to your Render backend URL (no trailing slash).
+6. Deploy. After deploy, copy the Vercel domain and set `CORS_ALLOWED_ORIGINS` in your Render backend to that origin (no trailing slash).
+7. Redeploy the frontend whenever `VITE_API_URL` changes — Vite bakes it at build time.
+
 ## PostgreSQL setup
 1. Install PostgreSQL 16 and start it (`brew install postgresql@16 && brew services start postgresql@16`, or Postgres.app).
 2. Create a database and user: `createdb salon_management` (default user `postgres`).
