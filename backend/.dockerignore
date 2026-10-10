@@ -1,0 +1,22 @@
+# Keep Docker build context small — only pom.xml and src/ are needed
+frontend/
+.git/
+.gitignore
+target/
+node_modules/
+dist/
+docs/
+*.md
+.env
+.env.*
+!.env.example
+.DS_Store
+backend/.DS_Store
+backend/src/.DS_Store
+backend/src/main/.DS_Store
+backend/src/main/java/.DS_Store
+backend/src/main/java/com/.DS_Store
+backend/src/main/java/com/salon/.DS_Store
+backend/src/main/java/com/salon/management/.DS_Store
+backend/src/main/resources/.DS_Store
+backend/src/test/.DS_Store
